@@ -46,7 +46,7 @@ export default function ProyectosPanel() {
       {/* Project list */}
       <div className="rounded-2xl border border-glass-bd p-6 flex flex-col gap-5"
         style={{ background: "linear-gradient(135deg, rgba(21,32,64,0.9) 0%, rgba(30,53,115,0.35) 100%)" }}>
-        <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/50">Proyectos Recientes</p>
+        <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">Proyectos Recientes</p>
         {PROJECTS.map(({ name, status, pct, color, tag }) => (
           <div key={name} className="flex flex-col gap-2">
             <div className="flex items-center justify-between">

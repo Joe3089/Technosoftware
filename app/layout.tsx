@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Montserrat, Inter, Orbitron } from "next/font/google";
+import { Bebas_Neue, Montserrat, Inter } from "next/font/google";
 import TSLoader from "@/components/common/TSLoader";
 import ParticleField from "@/components/common/ParticleField";
 import "./globals.css";
@@ -24,12 +24,6 @@ const inter = Inter({
   display: "swap",
 });
 
-const orbitron = Orbitron({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: "Technosoftware — Código que Hace la Diferencia",
   description:
@@ -45,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${bebasNeue.variable} ${montserrat.variable} ${inter.variable} ${orbitron.variable}`}
+      className={`${bebasNeue.variable} ${montserrat.variable} ${inter.variable}`}
     >
       <body className="font-body antialiased">
         <TSLoader />

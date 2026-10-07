@@ -47,7 +47,7 @@ export default function ContactSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <ScrollReveal className="text-center mb-16">
           <span className="eyebrow mb-4 block">Contacto</span>
-          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "clamp(2.5rem,5vw,4rem)" }}>
+          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "var(--fs-title)" }}>
             HABLEMOS DE TU{" "}
             <span className="text-gradient">PROYECTO</span>
           </h2>

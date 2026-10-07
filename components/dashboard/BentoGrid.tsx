@@ -174,13 +174,13 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
 
         {/* Stats — narrow */}
         <Tile className="lg:col-span-4 p-5">
-          <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60 mb-4">Resumen</p>
+          <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60 mb-4">Resumen</p>
           <div className="grid grid-cols-2 gap-3">
             {STATS.map(({ icon: Icon, label, value, color }) => (
               <div key={label} className="flex flex-col gap-1">
                 <Icon className={cn("w-4 h-4", color)} />
                 <span className={cn("font-mono text-2xl font-bold leading-none", color)}>{value}</span>
-                <span className="text-[11px] font-ui text-silver/70 leading-tight">{label}</span>
+                <span className="text-xs font-ui text-silver/70 leading-tight">{label}</span>
               </div>
             ))}
           </div>
@@ -188,7 +188,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
 
         {/* Quick actions */}
         <Tile className="lg:col-span-4 p-5 flex flex-col gap-3">
-          <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60">Acciones rápidas</p>
+          <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Acciones rápidas</p>
           {QUICK_ACTIONS.map(({ icon: Icon, label, href, color }) => (
             <Link
               key={label}
@@ -206,7 +206,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         <Tile className="lg:col-span-4 p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-blue-accent" />
-            <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60">Perfil</p>
+            <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Perfil</p>
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs font-ui">
@@ -236,7 +236,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-accent" />
-              <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60">Proyectos recientes</p>
+              <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Proyectos recientes</p>
             </div>
             <Badge variant="default">3 activos</Badge>
           </div>
@@ -267,7 +267,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         <Tile className="lg:col-span-4 p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2 mb-1">
             <CreditCard className="w-4 h-4 text-cyan" />
-            <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60">Métodos de Pago</p>
+            <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Métodos de Pago</p>
           </div>
           {PAYMENTS.map(({ name, tag, active }) => (
             <div key={name} className="flex items-center justify-between py-0.5">
@@ -284,7 +284,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         <Tile className="lg:col-span-4 p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-status-green" />
-            <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/60">Próxima sesión</p>
+            <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Próxima sesión</p>
           </div>
           <p className="text-xs text-silver/60">Sin reuniones agendadas</p>
           <Link
@@ -309,8 +309,8 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
             className="animate-spin-3d drop-shadow-[0_0_28px_rgba(0,207,255,0.5)] relative z-10"
           />
           <div className="text-center relative z-10">
-            <p className="font-display text-lg text-[#f0f4ff] tracking-widest">TECHNOSOFTWARE</p>
-            <p className="text-[10px] font-ui text-silver/50 uppercase tracking-widest">Agencia de Soporte y Desarrollo</p>
+            <p className="font-ui font-bold text-lg text-[#f0f4ff] tracking-widest">TECHNOSOFTWARE</p>
+            <p className="text-xs font-ui text-silver/50 uppercase tracking-widest">Agencia de Soporte y Desarrollo</p>
           </div>
         </Tile>
 

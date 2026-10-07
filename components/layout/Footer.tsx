@@ -174,7 +174,7 @@ export default function Footer() {
           <span>
             © {new Date().getFullYear()} Technosoftware. Todos los derechos reservados.
           </span>
-          <span className="font-mono text-[10px] text-silver/40">
+          <span className="font-mono text-xs text-silver/40">
             v2.0.0 · Next.js · Tailwind · Shadcn/UI
           </span>
         </div>

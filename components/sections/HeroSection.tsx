@@ -56,13 +56,13 @@ export default function HeroSection() {
 
         {/* Heading */}
         <motion.h1 variants={fadeUp} className="flex flex-col gap-1">
-          <span className="font-display text-white" style={{ fontSize: "clamp(2rem,4.5vw,3.6rem)" }}>
+          <span className="font-display text-white" style={{ fontSize: "var(--fs-title)" }}>
             CÓDIGO QUE HACE LA DIFERENCIA
           </span>
-          <span className="font-display text-blue-accent" style={{ fontSize: "clamp(1.8rem,3.8vw,3rem)" }}>
+          <span className="font-display text-blue-accent" style={{ fontSize: "var(--fs-title)" }}>
             INNOVACIÓN QUE TRASCIENDE
           </span>
-          <span className="font-display text-white" style={{ fontSize: "clamp(1.4rem,3vw,2.4rem)" }}>
+          <span className="font-display text-white" style={{ fontSize: "var(--fs-title)" }}>
             SOLUCIONES QUE PERDURAN
           </span>
         </motion.h1>

@@ -34,7 +34,7 @@ function strengthInfo(pw: string): { label: string; pct: number; color: string }
 function ReportRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex flex-col gap-0.5 p-3 rounded-lg bg-blue-accent/5 border border-blue-accent/10">
-      <span className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/50">{label}</span>
+      <span className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">{label}</span>
       <span className="text-sm font-ui text-[#f0f4ff]">{value || <span className="text-silver/30 italic text-xs">Sin datos</span>}</span>
     </div>
   );
@@ -119,7 +119,7 @@ function PasswordModal({ open, onClose }: { open: boolean; onClose: () => void }
                   <div className="h-1 rounded-full bg-navy-mid overflow-hidden">
                     <div className={cn("h-full rounded-full transition-all", strength.color)} style={{ width: `${strength.pct}%` }} />
                   </div>
-                  <span className="text-[11px] font-ui text-silver/60">{strength.label}</span>
+                  <span className="text-xs font-ui text-silver/60">{strength.label}</span>
                 </div>
               )}
             </div>
@@ -334,7 +334,7 @@ export default function PersonalDataPanel() {
 function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/50">{title}</p>
+      <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">{title}</p>
       <div className="flex-1 h-px bg-glass-bd" />
     </div>
   );

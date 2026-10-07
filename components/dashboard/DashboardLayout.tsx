@@ -126,7 +126,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
             height={30}
             className="animate-spin-3d-slow drop-shadow-[0_0_6px_rgba(77,127,255,0.6)]"
           />
-          <span className="font-display text-sm text-[#f0f4ff] tracking-widest hidden sm:block">
+          <span className="font-ui font-bold text-lg text-[#f0f4ff] tracking-widest hidden sm:block">
             TECHNOSOFTWARE
           </span>
         </Link>
@@ -186,7 +186,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
               return (
                 <div key={section.id} className="mb-0.5">
-                  <p className="px-4 pt-3 pb-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-silver/50">
+                  <p className="px-4 pt-3 pb-1 text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">
                     {section.label}
                   </p>
                   {/* Section toggle */}
@@ -232,7 +232,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
                                   : "text-silver/70 border-transparent hover:text-white hover:bg-white/5"
                               )}
                             >
-                              <span className="text-silver/40 text-[10px]">›</span>
+                              <span className="text-silver/40 text-xs">›</span>
                               <span className="flex-1 text-left">{label}</span>
                               {locked && <Lock className="w-3 h-3 text-silver/30 shrink-0" />}
                             </button>

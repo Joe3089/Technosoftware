@@ -35,7 +35,7 @@ export default function AuthCard() {
             className="animate-spin-3d-slow drop-shadow-[0_0_16px_rgba(77,127,255,0.6)]"
           />
           <div className="text-center">
-            <span className="font-display text-2xl text-[#f0f4ff] tracking-wider block">
+            <span className="font-ui font-bold text-2xl text-[#f0f4ff] tracking-wider block">
               TECHNOSOFTWARE
             </span>
             <span className="text-xs font-ui text-silver uppercase tracking-widest">

@@ -35,7 +35,7 @@ export default function InfoPage({ eyebrow, title, highlight, statement, image, 
         {/* Heading + section switcher */}
         <ScrollReveal className="text-center mb-8 sm:mb-10">
           <span className="eyebrow mb-4 block">{eyebrow}</span>
-          <h1 className="font-display text-[#f0f4ff]" style={{ fontSize: "clamp(2.4rem,6vw,4.5rem)" }}>
+          <h1 className="font-display text-[#f0f4ff]" style={{ fontSize: "var(--fs-title)" }}>
             {title} <span className="text-gradient">{highlight}</span>
           </h1>
           <nav aria-label="Sobre nosotros" className="mt-6 inline-flex flex-wrap justify-center gap-1 p-1 rounded-full glass border border-glass-bd">
@@ -94,7 +94,7 @@ export default function InfoPage({ eyebrow, title, highlight, statement, image, 
               </div>
               <div className="flex flex-col gap-3">
                 <span className="font-mono text-xs sm:text-sm tracking-[0.25em] uppercase text-cyan">{eyebrow}</span>
-                <p className="font-ui italic text-[#f0f4ff] leading-relaxed" style={{ fontSize: "clamp(1.05rem,2.2vw,1.5rem)" }}>
+                <p className="font-ui italic text-[#f0f4ff] leading-relaxed" style={{ fontSize: "var(--fs-subtitle)" }}>
                   {statement}
                 </p>
               </div>
@@ -104,7 +104,7 @@ export default function InfoPage({ eyebrow, title, highlight, statement, image, 
 
         {/* Pillars */}
         <ScrollReveal className="text-center mt-16 sm:mt-20 mb-8 sm:mb-10">
-          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)" }}>
+          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "var(--fs-title)" }}>
             {pillarsTitle}
           </h2>
         </ScrollReveal>

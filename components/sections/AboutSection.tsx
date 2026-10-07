@@ -30,7 +30,7 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <ScrollReveal className="text-center mb-16">
           <span className="eyebrow mb-4 block">Quiénes Somos</span>
-          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "clamp(2.5rem,5vw,4rem)" }}>
+          <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "var(--fs-title)" }}>
             EXPERTOS EN <span className="text-gradient">TECNOLOGÍA</span>
           </h2>
           <p className="mt-4 text-silver max-w-2xl mx-auto leading-relaxed">

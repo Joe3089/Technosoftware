@@ -84,8 +84,8 @@ export default function PagosPanel() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-ui font-semibold text-[#f0f4ff]">{name}</span>
-                <span className="text-[10px] font-mono text-silver/50 px-1.5 py-0.5 rounded border border-glass-bd">{tag}</span>
-                {!active && <span className="text-[10px] font-ui text-silver/40 italic">Próximamente</span>}
+                <span className="text-xs font-mono text-silver/50 px-1.5 py-0.5 rounded border border-glass-bd">{tag}</span>
+                {!active && <span className="text-xs font-ui text-silver/40 italic">Próximamente</span>}
               </div>
               <p className="text-xs text-silver/70 mt-0.5">{detail}</p>
               {handle && <p className="text-xs font-mono text-blue-accent mt-1">{handle}</p>}

@@ -17,6 +17,10 @@
     --glass-bd: rgba(77, 127, 255, 0.2);
     --tr: 0.38s cubic-bezier(0.4, 0, 0.2, 1);
     --r: 0.75rem;
+    /* Type scale — only three sizes across the whole site */
+    --fs-title: clamp(2.25rem, 5vw, 3.75rem);
+    --fs-subtitle: clamp(1.125rem, 1.6vw, 1.375rem);
+    --fs-body: 0.9375rem;
   }
 
   * {
