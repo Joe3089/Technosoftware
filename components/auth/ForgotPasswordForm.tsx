@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const { resetPassword } = useAuth(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -15,7 +17,7 @@ export default function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
+    await resetPassword(email.trim()); // same message either way: don't reveal which emails exist
     setLoading(false);
     setSent(true);
   }

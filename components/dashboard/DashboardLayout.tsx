@@ -8,7 +8,7 @@ import {
   Home, User, FolderOpen, MessageSquare, CreditCard,
   LogOut, ChevronRight, Menu, X, History, BarChart2,
   CheckSquare, Calendar, PlusCircle, Smartphone, DollarSign,
-  FileText, BadgeDollarSign, Lock,
+  FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,8 @@ export type PanelId =
   | "datos-personales" | "historial" | "estado-cuenta"
   | "historial-proyectos" | "estatus-proyectos" | "proyectos-culminados"
   | "consultoria" | "nuevo-proyecto"
-  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal";
+  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal"
+  | "admin-clientes" | "admin-correos";
 
 interface SubItem { id: PanelId; label: string; icon: React.ElementType }
 interface Section { id: string; label: string; icon: React.ElementType; subs: SubItem[] }
@@ -60,6 +61,15 @@ const SECTIONS: Section[] = [
   },
 ];
 
+/* Only visible to the admin role */
+const ADMIN_SECTION: Section = {
+  id: "admin", label: "Administración", icon: ShieldCheck,
+  subs: [
+    { id: "admin-clientes", label: "Clientes",        icon: Users },
+    { id: "admin-correos",  label: "Correos Masivos", icon: Mail  },
+  ],
+};
+
 interface Props {
   children: React.ReactNode;
   activePanel: PanelId;
@@ -74,7 +84,8 @@ const LOCKED_PANELS: PanelId[] = [
 ];
 
 export default function DashboardLayout({ children, activePanel, onPanelChange }: Props) {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
+  const sections = isAdmin ? [...SECTIONS, ADMIN_SECTION] : SECTIONS;
   const { data } = usePersonalData();
   const profileOk = isProfileComplete(data);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -137,6 +148,9 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
               style={{ background: "rgba(15,24,56,0.8)" }}>
               <span className="w-2 h-2 rounded-full bg-status-green animate-pulse shrink-0" />
               <span className="text-sm font-ui text-[#f0f4ff] max-w-[180px] truncate">{user.email}</span>
+              <span className={cn("text-xs font-ui font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border", isAdmin ? "text-cyan border-cyan/40 bg-cyan/10" : "text-silver border-glass-bd")}>
+                {isAdmin ? "Admin" : "Usuario"}
+              </span>
             </div>
           )}
           <button
@@ -180,7 +194,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
           {/* Sections */}
           <nav className="flex-1 overflow-y-auto py-2">
-            {SECTIONS.map((section) => {
+            {sections.map((section) => {
               const isOpen   = openSections.has(section.id);
               const isActive = section.subs.some((s) => s.id === activePanel);
 

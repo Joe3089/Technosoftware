@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Eye, EyeOff, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function RegisterForm({ onLogin }: { onLogin: () => void }) {
+  const { register } = useAuth(false);
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
@@ -38,8 +40,12 @@ export default function RegisterForm({ onLogin }: { onLogin: () => void }) {
     }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
+    const err = await register(form.email.trim(), form.password, `${form.nombre} ${form.apellido}`.trim());
     setLoading(false);
+    if (err) {
+      setError(err);
+      return;
+    }
     setSuccess(true);
     setTimeout(onLogin, 3000);
   }

@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
               "font-src 'self' fonts.gstatic.com",
               "img-src 'self' data: blob: unpkg.com *.tile.openstreetmap.org flagcdn.com maps.googleapis.com maps.gstatic.com *.googleapis.com *.gstatic.com *.google.com *.googleusercontent.com",
-              "connect-src 'self' nominatim.openstreetmap.org maps.googleapis.com maps.gstatic.com *.googleapis.com *.gstatic.com *.google.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co nominatim.openstreetmap.org maps.googleapis.com maps.gstatic.com *.googleapis.com *.gstatic.com *.google.com",
               "worker-src 'self' blob:",
               "frame-src maps.google.com www.google.com",
               "frame-ancestors 'none'",

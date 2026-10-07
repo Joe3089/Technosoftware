@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import DashboardLayout, { type PanelId } from "@/components/dashboard/DashboardLayout";
 import BentoGrid from "@/components/dashboard/BentoGrid";
 import PersonalDataPanel from "@/components/dashboard/panels/PersonalDataPanel";
 import ProyectosPanel from "@/components/dashboard/panels/ProyectosPanel";
 import ContactoPanel from "@/components/dashboard/panels/ContactoPanel";
 import PagosPanel from "@/components/dashboard/panels/PagosPanel";
+import ClientesPanel from "@/components/dashboard/panels/admin/ClientesPanel";
+import CorreosPanel from "@/components/dashboard/panels/admin/CorreosPanel";
 /* Panels that map to Proyectos section subs */
 const PROYECTO_PANELS: PanelId[] = ["historial-proyectos", "estatus-proyectos", "proyectos-culminados"];
 /* Panels that map to Contacto section subs */
@@ -22,17 +23,13 @@ function ActivePanel({ id, onNavigate }: { id: PanelId; onNavigate: (p: PanelId)
   if (PROYECTO_PANELS.includes(id)) return <ProyectosPanel />;
   if (CONTACTO_PANELS.includes(id)) return <ContactoPanel />;
   if (PAGOS_PANELS.includes(id))    return <PagosPanel />;
+  if (id === "admin-clientes")      return <ClientesPanel />;
+  if (id === "admin-correos")       return <CorreosPanel />;
   return <BentoGrid onNavigate={onNavigate} />;
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [activePanel, setActivePanel] = useState<PanelId>("home");
-
-  useEffect(() => {
-    const email = sessionStorage.getItem("ts_user_email");
-    if (!email) router.replace("/login");
-  }, [router]);
 
   return (
     <DashboardLayout activePanel={activePanel} onPanelChange={setActivePanel}>

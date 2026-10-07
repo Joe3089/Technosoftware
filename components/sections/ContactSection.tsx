@@ -25,6 +25,7 @@ export default function ContactSection() {
   const [showMap, setShowMap] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,8 +34,17 @@ export default function ContactSection() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1800));
+    setError("");
+    const res = await fetch("/api/contacto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    }).catch(() => null);
     setSending(false);
+    if (!res?.ok) {
+      setError("No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos.");
+      return;
+    }
     setSent(true);
     setTimeout(() => {
       setSent(false);
@@ -104,7 +114,8 @@ export default function ContactSection() {
                 <p className="text-silver text-sm">Te contactaremos en menos de 48 horas hábiles.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="glass-card rounded-xl p-8 flex flex-col gap-5">
+              <form onSubmit={handleSubmit} className="glass-card rounded-xl p-5 sm:p-8 flex flex-col gap-5">
+                {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="nombre">Nombre *</Label>
                   <Input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} required placeholder="Tu nombre" autoComplete="name" />

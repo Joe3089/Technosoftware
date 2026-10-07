@@ -26,15 +26,12 @@ export default function LoginForm({
     e.preventDefault();
     setError("");
 
-    if (email.includes("fail")) {
-      setError("Credenciales incorrectas. Verifica tu email y contraseña.");
-      return;
-    }
-
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1400));
-    const name = email.split("@")[0];
-    login(email, name);
+    const err = await login(email.trim(), password);
+    if (err) {
+      setError(err);
+      setLoading(false);
+    }
   }
 
   return (

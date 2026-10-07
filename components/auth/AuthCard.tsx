@@ -30,8 +30,9 @@ export default function AuthCard() {
           <Image
             src="/logo.png"
             alt="Technosoftware"
-            width={56}
-            height={56}
+            width={128}
+            height={128}
+            priority
             className="animate-spin-3d-slow drop-shadow-[0_0_16px_rgba(77,127,255,0.6)]"
           />
           <div className="text-center">
