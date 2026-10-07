@@ -23,10 +23,11 @@ const SLIDES: {
   { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-w.jpg", width: 1364, height: 636, accent: "rgba(236,72,153,0.6)" },
 ];
 
+// Outgoing and incoming slides move together, so the frame is never empty
 const slideVariants = {
-  enter: { opacity: 0, x: 60 },
-  center: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -60 },
+  enter: { x: "100%" },
+  center: { x: "0%" },
+  exit: { x: "-100%" },
 };
 
 export default function ProjectCarousel() {
@@ -40,7 +41,7 @@ export default function ProjectCarousel() {
 
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(next, 3500);
+    const id = setInterval(next, 4500);
     return () => clearInterval(id);
   }, [paused, next]);
 
@@ -63,7 +64,7 @@ export default function ProjectCarousel() {
           width: `min(100%, ${slide.width}px, calc(62vh * ${ratio.toFixed(4)}))`,
         }}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false}>
           <motion.div
             key={current}
             className="absolute inset-0 flex flex-col items-center justify-center gap-4"
@@ -72,7 +73,7 @@ export default function ProjectCarousel() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
           >
             {hasImage && (
               <>
@@ -82,7 +83,7 @@ export default function ProjectCarousel() {
                   fill
                   sizes="(max-width: 1280px) 100vw, 1280px"
                   quality={95}
-                  priority={current === 0}
+                  priority
                   className="object-cover"
                   onError={() => setBroken((b) => ({ ...b, [slide.src]: true }))}
                 />
@@ -99,6 +100,13 @@ export default function ProjectCarousel() {
             </div>
           </motion.div>
         </AnimatePresence>
+      </div>
+
+      {/* Preload every slide so each one is ready before it slides in */}
+      <div className="hidden" aria-hidden>
+        {SLIDES.map((s) => (
+          <Image key={s.src} src={s.src} alt="" width={s.width} height={s.height} quality={95} sizes="(max-width: 1280px) 100vw, 1280px" priority />
+        ))}
       </div>
 
       {/* Dot indicators */}
