@@ -5,7 +5,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Globe, Smartphone, Server, Bot, Cpu, Headphones, BarChart3 } from "lucide-react";
 
-// width/height = real pixel size of each file, so the frame takes the image's exact proportions
+// All images share the "Páginas Web" size (1364x636), so the frame keeps one fixed size
 const SLIDES: {
   category: string;
   Icon: typeof Globe;
@@ -15,12 +15,12 @@ const SLIDES: {
   accent: string;
 }[] = [
   { category: "Páginas Web", Icon: Globe, src: "/projects/web.png", width: 1364, height: 636, accent: "rgba(77,127,255,0.6)" },
-  { category: "Apps Móviles", Icon: Smartphone, src: "/projects/mobile.png", width: 1131, height: 721, accent: "rgba(0,207,255,0.6)" },
-  { category: "ERP", Icon: Server, src: "/projects/erp-hd.jpg", width: 1920, height: 1149, accent: "rgba(99,102,241,0.6)" },
-  { category: "Inteligencia Artificial", Icon: Bot, src: "/projects/IA-hd.jpg", width: 1920, height: 1078, accent: "rgba(168,85,247,0.6)" },
-  { category: "Reparación de PC", Icon: Cpu, src: "/projects/reparacion-hd.jpg", width: 1920, height: 1280, accent: "rgba(249,115,22,0.6)" },
-  { category: "ATC IT", Icon: Headphones, src: "/projects/atc-hd.jpg", width: 1920, height: 1080, accent: "rgba(34,197,94,0.6)" },
-  { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-hd.jpg", width: 2400, height: 1800, accent: "rgba(236,72,153,0.6)" },
+  { category: "Apps Móviles", Icon: Smartphone, src: "/projects/mobile-w.jpg", width: 1364, height: 636, accent: "rgba(0,207,255,0.6)" },
+  { category: "ERP", Icon: Server, src: "/projects/erp-w.jpg", width: 1364, height: 636, accent: "rgba(99,102,241,0.6)" },
+  { category: "Inteligencia Artificial", Icon: Bot, src: "/projects/IA-w.jpg", width: 1364, height: 636, accent: "rgba(168,85,247,0.6)" },
+  { category: "Reparación de PC", Icon: Cpu, src: "/projects/reparacion-w.jpg", width: 1364, height: 636, accent: "rgba(249,115,22,0.6)" },
+  { category: "ATC IT", Icon: Headphones, src: "/projects/atc-w.jpg", width: 1364, height: 636, accent: "rgba(34,197,94,0.6)" },
+  { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-w.jpg", width: 1364, height: 636, accent: "rgba(236,72,153,0.6)" },
 ];
 
 const slideVariants = {
