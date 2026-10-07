@@ -1,0 +1,5 @@
+src_backup
+*.bak
+package.json.vite
+.env*.local
+.env

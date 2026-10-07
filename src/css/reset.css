@@ -1,0 +1,34 @@
+/* ═══════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--navy-deep);
+  color: var(--white);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+img { max-width: 100%; display: block; }
+
+/* Grid de fondo */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% -10%, rgba(30,53,115,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(42,74,173,.25) 0%, transparent 55%);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(77,127,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(77,127,255,.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}

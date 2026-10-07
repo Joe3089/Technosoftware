@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechnoSoftware — Mi Panel</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Orbitron:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./css/variables.css"/>
+  <link rel="stylesheet" href="./css/reset.css"/>
+  <link rel="stylesheet" href="./css/loader.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      background: var(--navy-deep, #05091a);
+      color: var(--white, #e8f0ff);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top nav ── */
+    .dash-nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem;
+      background: rgba(8,14,26,.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(77,127,255,.15);
+      flex-shrink: 0;
+    }
+    .dash-nav-logo img { height: 48px; width: auto; filter: drop-shadow(0 0 10px rgba(0,207,255,.6)); }
+    .dash-nav-right { display: flex; align-items: center; gap: .85rem; }
+    .dash-user-pill {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .35rem .85rem;
+      background: rgba(77,127,255,.1);
+      border: 1px solid rgba(77,127,255,.25);
+      border-radius: 30px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .85rem; font-weight: 600; letter-spacing: .05em;
+    }
+    .dash-user-dot { width: 7px; height: 7px; border-radius: 50%; background: #00e676; box-shadow: 0 0 7px #00e676; }
+    .dash-logout {
+      padding: .35rem .85rem; background: transparent;
+      border: 1px solid rgba(255,80,80,.3); border-radius: 8px;
+      color: rgba(255,120,120,.8); font-family: 'Rajdhani', sans-serif;
+      font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .dash-logout:hover { background: rgba(255,80,80,.1); color: #ff6b6b; border-color: rgba(255,80,80,.6); }
+
+    /* ── Layout ── */
+    .dash-body { display: flex; flex: 1; min-height: 0; }
+
+    /* ── Sidebar ── */
+    .dash-sidebar {
+      width: 255px; flex-shrink: 0;
+      background: rgba(6,11,28,.85);
+      border-right: 1px solid rgba(77,127,255,.12);
+      display: flex; flex-direction: column;
+      padding: 1.25rem 0; overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: .15rem; }
+    .sidebar-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .67rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(77,127,255,.55); padding: .85rem 1.35rem .3rem;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .58rem 1.35rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .88rem; font-weight: 600; letter-spacing: .04em;
+      color: rgba(154,175,212,.65);
+      cursor: pointer; border-left: 2px solid transparent;
+      transition: all .15s; user-select: none;
+    }
+    .sidebar-item:hover { color: #e8f0ff; background: rgba(77,127,255,.07); border-left-color: rgba(77,127,255,.35); }
+    .sidebar-item.active { color: rgba(0,207,255,.9); background: rgba(77,127,255,.1); border-left-color: rgba(0,207,255,.8); }
+    .s-ico { font-size: .95rem; flex-shrink: 0; width: 18px; text-align: center; }
+    .s-chev { margin-left: auto; font-size: .68rem; opacity: .45; transition: transform .18s; }
+    .sidebar-item.open .s-chev { transform: rotate(90deg); }
+    .sidebar-sub { display: none; }
+    .sidebar-sub.open { display: block; }
+    .sidebar-subitem {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .42rem 1.35rem .42rem 2.85rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .8rem; font-weight: 500; letter-spacing: .02em;
+      color: rgba(154,175,212,.5); cursor: pointer;
+      border-left: 2px solid transparent; transition: all .13s;
+    }
+    .sidebar-subitem::before { content: '›'; opacity: .45; font-size: .78rem; margin-right: .2rem; }
+    .sidebar-subitem:hover { color: rgba(0,207,255,.75); background: rgba(77,127,255,.05); }
+    .sidebar-subitem.active { color: rgba(0,207,255,.9); border-left-color: rgba(0,207,255,.45); }
+    .sidebar-div { height: 1px; background: rgba(77,127,255,.1); margin: .45rem 1.1rem; }
+
+    /* ── Main ── */
+    .dash-main {
+      flex: 1; overflow-y: auto;
+      padding: 2.5rem 2.5rem;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+
+    /* ── Welcome banner ── */
+    .dash-welcome {
+      background: linear-gradient(135deg, rgba(77,127,255,.12), rgba(0,207,255,.06));
+      border: 1px solid rgba(77,127,255,.22);
+      border-radius: 16px;
+      padding: 1.6rem 2rem;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .dash-welcome-icon {
+      width: 60px; height: 60px; flex-shrink: 0;
+      background: rgba(77,127,255,.18); border: 1px solid rgba(77,127,255,.3);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem;
+    }
+    .dash-welcome-text h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.45rem; font-weight: 700; letter-spacing: .04em; margin-bottom: .2rem;
+    }
+    .dash-welcome-text h1 span { color: rgba(0,207,255,.9); }
+    .dash-welcome-text p { font-size: .86rem; color: rgba(154,175,212,.6); }
+    .dash-welcome-text p span { color: rgba(0,207,255,.75); font-weight: 600; }
+
+    /* ── Logo 3D centrado ── */
+    .dash-logo-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0;
+    }
+    .dash-logo-wrap {
+      perspective: 900px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dash-logo-wrap img {
+      width: 260px; max-width: 60vw; height: auto;
+      filter:
+        drop-shadow(0 0 20px rgba(0,207,255,.9))
+        drop-shadow(0 0 45px rgba(0,207,255,.45))
+        drop-shadow(0 0 90px rgba(77,127,255,.3));
+      animation: dashLogoSpin 7s linear infinite;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+    .dash-logo-wrap img:hover { animation-play-state: paused; }
+    @keyframes dashLogoSpin {
+      0%   { transform: rotateY(0deg)   scale(1); }
+      20%  { transform: rotateY(72deg)  scale(1.04); }
+      40%  { transform: rotateY(144deg) scale(1); }
+      50%  { transform: rotateY(180deg) scale(0.96); }
+      60%  { transform: rotateY(216deg) scale(1); }
+      80%  { transform: rotateY(288deg) scale(1.04); }
+      100% { transform: rotateY(360deg) scale(1); }
+    }
+
+    /* ── Quick actions ── */
+    .dash-card {
+      background: rgba(8,14,26,.8);
+      border: 1px solid rgba(77,127,255,.16);
+      border-radius: 16px; backdrop-filter: blur(12px);
+    }
+    .dash-card-header {
+      padding: .85rem 1.4rem;
+      border-bottom: 1px solid rgba(77,127,255,.1);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .dash-card-header h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .76rem; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(77,127,255,.85);
+    }
+    .dash-card-body { padding: 1.3rem 1.4rem; }
+    .dash-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+    .dash-action-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .6rem 1.2rem; border-radius: 9px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .86rem; font-weight: 700; letter-spacing: .06em;
+      cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .dash-action-btn.primary {
+      background: linear-gradient(135deg, rgba(77,127,255,.9), rgba(0,207,255,.7));
+      border: none; color: #fff;
+    }
+    .dash-action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(77,127,255,.35); }
+    .dash-action-btn.secondary {
+      background: transparent; border: 1px solid rgba(77,127,255,.28); color: rgba(154,175,212,.8);
+    }
+    .dash-action-btn.secondary:hover { border-color: rgba(77,127,255,.6); color: #fff; background: rgba(77,127,255,.08); }
+
+    /* ── Not auth ── */
+    .dash-notauth {
+      display: none; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 60vh; gap: 1rem; text-align: center;
+    }
+
+    /* ── Report view ── */
+    .dp-report-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+    }
+    .dp-report-item {
+      padding: .9rem 1.1rem;
+      border-bottom: 1px solid rgba(77,127,255,.07);
+      border-right: 1px solid rgba(77,127,255,.07);
+    }
+    .dp-report-item:nth-child(even) { border-right: none; }
+    .dp-report-item.full {
+      grid-column: 1 / -1;
+      border-right: none;
+    }
+    .dp-report-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .67rem; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: rgba(77,127,255,.65); margin-bottom: .3rem;
+    }
+    .dp-report-value {
+      font-size: .9rem; color: #e8f0ff; font-weight: 500;
+    }
+    .dp-report-value.empty { color: rgba(154,175,212,.3); font-style: italic; font-size:.82rem; }
+    .dp-report-section {
+      background: rgba(8,14,26,.8);
+      border: 1px solid rgba(77,127,255,.14);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+    .dp-report-head {
+      padding: .85rem 1.3rem;
+      border-bottom: 1px solid rgba(77,127,255,.1);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .76rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(77,127,255,.85);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .dp-report-avatar-row {
+      display: flex; align-items: center; gap: 1.25rem;
+      padding: 1.2rem 1.3rem;
+      border-bottom: 1px solid rgba(77,127,255,.08);
+    }
+    .dp-report-avatar {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(77,127,255,.15);
+      border: 2px solid rgba(77,127,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; flex-shrink: 0; overflow: hidden;
+    }
+    .dp-report-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dp-report-name { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; color: #e8f0ff; }
+    .dp-report-email { font-size: .82rem; color: rgba(0,207,255,.75); margin-top: .15rem; }
+    .dp-edit-bar {
+      display: flex; gap: .65rem;
+      padding: 1.1rem 1.3rem 1.3rem;
+    }
+    @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(12px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+    @keyframes reminderPulse { 0%,100% { border-color:rgba(255,180,0,.35); } 50% { border-color:rgba(255,180,0,.9); box-shadow:0 0 18px rgba(255,180,0,.25); } }
+    @media (max-width: 768px) { .dash-sidebar { width: 210px; } }
+
+    /* ═══ DATOS PERSONALES ═══ */
+    .dp-header { display:flex; align-items:center; gap:1rem; margin-bottom:.25rem; }
+    .dp-back-btn {
+      padding:.4rem .9rem; background:transparent;
+      border:1px solid rgba(77,127,255,.3); border-radius:8px;
+      color:rgba(154,175,212,.7); font-family:'Rajdhani',sans-serif;
+      font-size:.82rem; font-weight:600; cursor:pointer; transition:all .18s;
+    }
+    .dp-back-btn:hover { color:#e8f0ff; border-color:rgba(77,127,255,.6); }
+    .dp-title { font-family:'Rajdhani',sans-serif; font-size:1.35rem; font-weight:700; letter-spacing:.05em; color:#e8f0ff; }
+
+    .dp-card {
+      background:rgba(8,14,26,.8); border:1px solid rgba(77,127,255,.16);
+      border-radius:16px; overflow:hidden; backdrop-filter:blur(12px);
+    }
+    .dp-card-head {
+      padding:.85rem 1.4rem; border-bottom:1px solid rgba(77,127,255,.1);
+      font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700;
+      letter-spacing:.16em; text-transform:uppercase; color:rgba(77,127,255,.85);
+    }
+    .dp-form { padding:1.3rem 1.4rem; display:flex; flex-direction:column; gap:1rem; }
+    .dp-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .dp-fg { display:flex; flex-direction:column; gap:.35rem; }
+    .dp-fg label {
+      font-family:'Rajdhani',sans-serif; font-size:.72rem; font-weight:700;
+      letter-spacing:.14em; text-transform:uppercase; color:rgba(154,175,212,.5);
+    }
+    .dp-fg input {
+      background:rgba(5,9,26,.55); border:1px solid rgba(77,127,255,.2);
+      border-radius:9px; padding:.7rem 1rem; color:#e8f0ff;
+      font-family:'Inter',sans-serif; font-size:.88rem;
+      outline:none; transition:border-color .18s, box-shadow .18s;
+    }
+    .dp-fg input:focus { border-color:rgba(77,127,255,.7); box-shadow:0 0 0 3px rgba(77,127,255,.1); }
+    .dp-fg input::placeholder { color:rgba(154,175,212,.28); }
+
+    /* Avatar */
+    .dp-avatar-row { display:flex; align-items:center; gap:1.5rem; padding:1.4rem; }
+    .dp-avatar-wrap {
+      position:relative; width:88px; height:88px; flex-shrink:0;
+      border-radius:50%; border:2px solid rgba(77,127,255,.3);
+      background:rgba(77,127,255,.1);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .dp-avatar-wrap img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+    #dp-avatar-placeholder { font-size:2.2rem; }
+    .dp-avatar-edit {
+      position:absolute; bottom:0; right:0;
+      width:28px; height:28px; border-radius:50%;
+      background:linear-gradient(135deg,rgba(77,127,255,.9),rgba(0,207,255,.7));
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:.75rem;
+    }
+    .dp-avatar-name { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:#e8f0ff; }
+    .dp-avatar-email { font-size:.82rem; color:rgba(154,175,212,.55); margin-top:.2rem; }
+
+    /* Password button */
+    .dp-pw-btn {
+      align-self:flex-start; padding:.55rem 1.2rem;
+      background:rgba(77,127,255,.1); border:1px solid rgba(77,127,255,.28);
+      border-radius:9px; color:rgba(154,175,212,.8);
+      font-family:'Rajdhani',sans-serif; font-size:.86rem; font-weight:600;
+      cursor:pointer; transition:all .18s;
+    }
+    .dp-pw-btn:hover { background:rgba(77,127,255,.2); color:#e8f0ff; border-color:rgba(77,127,255,.55); }
+
+    /* Save / cancel */
+    .dp-actions { display:flex; gap:.75rem; }
+    .dp-btn-save {
+      padding:.7rem 1.6rem; border:none; border-radius:10px; cursor:pointer;
+      background:linear-gradient(135deg,rgba(77,127,255,.9),rgba(0,207,255,.7));
+      color:#fff; font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700;
+      letter-spacing:.07em; transition:all .2s;
+    }
+    .dp-btn-save:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(77,127,255,.35); }
+    .dp-btn-cancel {
+      padding:.7rem 1.4rem; background:transparent;
+      border:1px solid rgba(255,80,80,.3); border-radius:10px;
+      color:rgba(255,120,120,.7); font-family:'Rajdhani',sans-serif;
+      font-size:.9rem; font-weight:600; cursor:pointer; transition:all .2s;
+    }
+    .dp-btn-cancel:hover { background:rgba(255,80,80,.08); color:#ff6b6b; }
+
+    /* Password modal */
+    .pw-modal-box {
+      background:#0d1628; border:1px solid rgba(77,127,255,.35);
+      border-radius:18px; width:min(480px,94vw); overflow:hidden;
+    }
+    .pw-modal-head {
+      padding:1rem 1.4rem; border-bottom:1px solid rgba(77,127,255,.15);
+      font-family:'Rajdhani',sans-serif; font-size:.88rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase; color:rgba(77,127,255,.9);
+    }
+    .pw-modal-body { padding:1.4rem; display:flex; flex-direction:column; gap:1rem; }
+    .pw-input-wrap { position:relative; }
+    .pw-input-wrap input {
+      width:100%; background:rgba(5,9,26,.55); border:1px solid rgba(77,127,255,.2);
+      border-radius:9px; padding:.7rem 2.5rem .7rem 1rem; color:#e8f0ff;
+      font-size:.88rem; outline:none; transition:border-color .18s;
+    }
+    .pw-input-wrap input:focus { border-color:rgba(77,127,255,.6); }
+    .pw-eye {
+      position:absolute; right:.8rem; top:50%; transform:translateY(-50%);
+      cursor:pointer; opacity:.45; transition:opacity .15s; font-size:.88rem;
+    }
+    .pw-eye:hover { opacity:1; }
+    .pw-strength-bar {
+      height:4px; border-radius:4px; background:rgba(77,127,255,.12);
+      margin-top:.4rem; overflow:hidden;
+    }
+    #pw-strength-fill { height:100%; width:0%; border-radius:4px; transition:width .3s, background .3s; }
+    .pw-modal-btns { display:flex; gap:.65rem; margin-top:.5rem; }
+
+    @media (max-width:600px) {
+      .dp-row { grid-template-columns:1fr; }
+      .dp-avatar-row { flex-direction:column; text-align:center; }
+    }
+    @media (max-width: 600px) {
+      .dash-body { flex-direction: column; }
+      .dash-sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(77,127,255,.12); }
+      .dash-main { padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top nav -->
+<nav class="dash-nav">
+  <a href="./index.html" class="dash-nav-logo">
+    <img src="./assets/logo.png" alt="TechnoSoftware"/>
+  </a>
+  <div class="dash-nav-right">
+    <div class="dash-user-pill">
+      <div class="dash-user-dot"></div>
+      <span id="nav-username">Usuario</span>
+    </div>
+    <button class="dash-logout" onclick="doLogout()">← Cerrar sesión</button>
+  </div>
+</nav>
+
+<div class="dash-body">
+
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-item active" onclick="navTo('home',this)">
+        <span class="s-ico">🏠</span> Inicio
+      </div>
+    </div>
+    <div class="sidebar-div"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Perfil</div>
+      <div class="sidebar-item" onclick="toggleSub('sub-perfil',this)">
+        <span class="s-ico">👤</span> Perfil <span class="s-chev">›</span>
+      </div>
+      <div class="sidebar-sub" id="sub-perfil">
+        <div class="sidebar-subitem" onclick="navTo('datos-personales',this)">Datos Personales</div>
+        <div class="sidebar-subitem" onclick="navTo('historial',this)">Historial</div>
+        <div class="sidebar-subitem" onclick="navTo('estado-cuenta',this)">Estado de Cuenta</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Proyectos</div>
+      <div class="sidebar-item" onclick="toggleSub('sub-proyectos',this)">
+        <span class="s-ico">📁</span> Proyectos <span class="s-chev">›</span>
+      </div>
+      <div class="sidebar-sub" id="sub-proyectos">
+        <div class="sidebar-subitem" onclick="navTo('historial-proyectos',this)">Historial de Proyectos</div>
+        <div class="sidebar-subitem" onclick="navTo('estatus-proyectos',this)">Estatus de Proyectos</div>
+        <div class="sidebar-subitem" onclick="navTo('proyectos-culminados',this)">Proyectos Culminados</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Contáctanos</div>
+      <div class="sidebar-item" onclick="toggleSub('sub-contacto',this)">
+        <span class="s-ico">📩</span> Contáctanos <span class="s-chev">›</span>
+      </div>
+      <div class="sidebar-sub" id="sub-contacto">
+        <div class="sidebar-subitem" onclick="navTo('consultoria',this)">Consultoría</div>
+        <div class="sidebar-subitem" onclick="navTo('nuevo-proyecto',this)">Nuevo Proyecto</div>
+      </div>
+    </div>
+    <div class="sidebar-div"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Métodos de Pago</div>
+      <div class="sidebar-item" onclick="toggleSub('sub-pagos',this)">
+        <span class="s-ico">💳</span> Métodos de Pago <span class="s-chev">›</span>
+      </div>
+      <div class="sidebar-sub" id="sub-pagos">
+        <div class="sidebar-subitem" onclick="navTo('pago-movil',this)">Pago Móvil</div>
+        <div class="sidebar-subitem" onclick="navTo('zelle',this)">Zelle</div>
+        <div class="sidebar-subitem" onclick="navTo('airtm',this)">AirTM</div>
+        <div class="sidebar-subitem" onclick="navTo('binance',this)">Binance</div>
+        <div class="sidebar-subitem" onclick="navTo('paypal',this)">PayPal</div>
+      </div>
+    </div>
+    <div class="sidebar-div"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-item" onclick="doLogout()" style="color:rgba(255,100,100,.55)">
+        <span class="s-ico">←</span> Cerrar Sesión
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+
+    <div class="dash-notauth" id="notAuth">
+      <p style="font-size:3rem">🔒</p>
+      <p style="color:rgba(154,175,212,.6)">No has iniciado sesión.</p>
+      <a href="./login.html" class="dash-action-btn primary">Ir al login →</a>
+    </div>
+
+    <div id="dashContent" style="display:none;flex-direction:column;gap:2rem">
+
+      <!-- 1. Welcome banner -->
+      <div class="dash-welcome">
+        <div class="dash-welcome-icon">👤</div>
+        <div class="dash-welcome-text">
+          <h1>Bienvenido, <span id="welcome-name">Usuario</span></h1>
+          <p>Estás dentro de tu panel de TechnoSoftware. <span>Sesión activa.</span></p>
+        </div>
+      </div>
+
+      <!-- Recordatorio perfil incompleto -->
+      <div id="profile-reminder" style="display:none;background:linear-gradient(135deg,rgba(255,180,0,.1),rgba(255,140,0,.06));border:1px solid rgba(255,180,0,.35);border-radius:14px;padding:1.1rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+        <span style="font-size:1.5rem;flex-shrink:0">⚠️</span>
+        <div style="flex:1">
+          <p style="font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.07em;color:rgba(255,200,60,.9);margin-bottom:.3rem">COMPLETA TU PERFIL</p>
+          <p style="font-size:.83rem;color:rgba(200,170,100,.8);line-height:1.55">Para acceder a <strong style="color:rgba(255,200,60,.9)">Contáctanos</strong>, <strong style="color:rgba(255,200,60,.9)">Estatus de Proyectos</strong>, <strong style="color:rgba(255,200,60,.9)">Historial</strong> y <strong style="color:rgba(255,200,60,.9)">Historial de Proyectos</strong>, debes completar tus datos personales primero.</p>
+        </div>
+        <button onclick="navTo('datos-personales', null); document.getElementById('sub-perfil').classList.add('open');" style="background:linear-gradient(135deg,rgba(255,180,0,.25),rgba(255,140,0,.15));border:1px solid rgba(255,180,0,.4);border-radius:8px;color:rgba(255,210,80,.9);font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.07em;padding:.5rem 1rem;cursor:pointer;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='rgba(255,180,0,.3)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(255,180,0,.25),rgba(255,140,0,.15))'">
+          Completar ahora →
+        </button>
+      </div>
+
+      <!-- 2. Logo 3D girando -->
+      <div class="dash-logo-section">
+        <div class="dash-logo-wrap">
+          <img src="./assets/logo.png" alt="TechnoSoftware"/>
+        </div>
+      </div>
+
+      <!-- 3. Acciones rápidas -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(77,127,255,.85)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <h2>Acciones rápidas</h2>
+        </div>
+        <div class="dash-card-body">
+          <div class="dash-actions">
+            <a href="./index.html#contacto" class="dash-action-btn primary">📩 Nuevo mensaje</a>
+            <a href="./index.html#proyectos" class="dash-action-btn secondary">📁 Ver proyectos</a>
+            <a href="./index.html" class="dash-action-btn secondary">🏠 Ir al inicio</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ DATOS PERSONALES PANEL ═══ -->
+    <div id="panel-datos-personales" style="display:none;flex-direction:column;gap:1.5rem">
+
+      <!-- ══ REPORT VIEW (when data is complete) ══ -->
+      <div id="dp-report-view" style="display:none;flex-direction:column;gap:1.25rem">
+
+        <div class="dp-report-section">
+          <!-- Avatar + nombre -->
+          <div class="dp-report-avatar-row">
+            <div class="dp-report-avatar">
+              <img id="rpt-avatar" src="" style="display:none" alt="Foto"/>
+              <span id="rpt-avatar-icon">👤</span>
+            </div>
+            <div>
+              <div class="dp-report-name" id="rpt-fullname">—</div>
+              <div class="dp-report-email" id="rpt-email">—</div>
+            </div>
+          </div>
+          <!-- Personal -->
+          <div class="dp-report-head">📋 Información Personal</div>
+          <div class="dp-report-grid">
+            <div class="dp-report-item"><div class="dp-report-label">Nombre</div><div class="dp-report-value" id="rpt-nombre">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Apellido</div><div class="dp-report-value" id="rpt-apellido">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Cédula / ID / Pasaporte</div><div class="dp-report-value" id="rpt-cedula">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Teléfono Móvil</div><div class="dp-report-value" id="rpt-tel-mov">—</div></div>
+            <div class="dp-report-item full"><div class="dp-report-label">Dirección de Habitación</div><div class="dp-report-value" id="rpt-dir-hab">—</div></div>
+            <div class="dp-report-item full"><div class="dp-report-label">Dirección de Empresa</div><div class="dp-report-value" id="rpt-dir-emp">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Teléfono de Habitación</div><div class="dp-report-value" id="rpt-tel-hab">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Teléfono de Empresa</div><div class="dp-report-value" id="rpt-tel-emp">—</div></div>
+          </div>
+          <!-- Profesional -->
+          <div class="dp-report-head">🏢 Información Profesional</div>
+          <div class="dp-report-grid">
+            <div class="dp-report-item"><div class="dp-report-label">Empresa</div><div class="dp-report-value" id="rpt-empresa">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Cargo</div><div class="dp-report-value" id="rpt-cargo">—</div></div>
+            <div class="dp-report-item full"><div class="dp-report-label">Profesión</div><div class="dp-report-value" id="rpt-profesion">—</div></div>
+          </div>
+          <!-- Cuenta -->
+          <div class="dp-report-head">🔐 Cuenta</div>
+          <div class="dp-report-grid">
+            <div class="dp-report-item"><div class="dp-report-label">Correo</div><div class="dp-report-value" id="rpt-correo">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Usuario</div><div class="dp-report-value" id="rpt-usuario">—</div></div>
+            <div class="dp-report-item"><div class="dp-report-label">Contraseña</div><div class="dp-report-value">••••••••••</div></div>
+            <div class="dp-report-item"></div>
+          </div>
+          <!-- Edit bar -->
+          <div class="dp-edit-bar">
+            <button onclick="switchToEditMode()" class="dash-action-btn primary">✏️ Modificar datos</button>
+            <button onclick="openPwModal()" class="dash-action-btn secondary">🔑 Cambiar contraseña</button>
+          </div>
+        </div>
+      </div><!-- /dp-report-view -->
+
+      <!-- ══ EDIT FORM VIEW ══ -->
+      <div id="dp-edit-view" style="display:none;flex-direction:column;gap:1.25rem">
+
+      <div class="dp-header">
+        <button class="dp-back-btn" onclick="navTo('home',null)">← Volver</button>
+        <h2 class="dp-title">Datos Personales</h2>
+      </div>
+
+      <!-- Avatar + nombre -->
+      <div class="dp-card">
+        <div class="dp-avatar-row">
+          <div class="dp-avatar-wrap">
+            <img id="dp-avatar-img" src="" alt="Foto de perfil" onerror="this.style.display='none'"/>
+            <div id="dp-avatar-placeholder">👤</div>
+            <label class="dp-avatar-edit" title="Cambiar foto">
+              <span>📷</span>
+              <input type="file" id="dp-avatar-input" accept="image/*" onchange="handleAvatarChange(this)" style="display:none"/>
+            </label>
+          </div>
+          <div>
+            <p class="dp-avatar-name" id="dp-display-name">Usuario</p>
+            <p class="dp-avatar-email" id="dp-display-email">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="dp-card">
+        <div class="dp-card-head">📋 Información Personal</div>
+        <div class="dp-form">
+          <div class="dp-row">
+            <div class="dp-fg"><label>Nombre</label><input type="text" id="dp-nombre" placeholder="Juan"/></div>
+            <div class="dp-fg"><label>Apellido</label><input type="text" id="dp-apellido" placeholder="Pérez"/></div>
+          </div>
+          <div class="dp-fg"><label>Cédula / ID / Pasaporte</label><input type="text" id="dp-cedula" placeholder="V-12345678"/></div>
+          <div class="dp-fg"><label>Dirección de Habitación</label><input type="text" id="dp-dir-hab" placeholder="Calle principal, Apto 3B"/></div>
+          <div class="dp-fg"><label>Dirección de Empresa</label><input type="text" id="dp-dir-emp" placeholder="Av. Industrial, Piso 4"/></div>
+          <div class="dp-row">
+            <div class="dp-fg"><label>Teléfono de Habitación</label><input type="tel" id="dp-tel-hab" placeholder="+58 212 000 0000"/></div>
+            <div class="dp-fg"><label>Teléfono de Empresa</label><input type="tel" id="dp-tel-emp" placeholder="+58 212 111 1111"/></div>
+          </div>
+          <div class="dp-fg"><label>Teléfono Móvil</label><input type="tel" id="dp-tel-mov" placeholder="+58 414 000 0000"/></div>
+        </div>
+      </div>
+
+      <div class="dp-card">
+        <div class="dp-card-head">🏢 Información Profesional</div>
+        <div class="dp-form">
+          <div class="dp-row">
+            <div class="dp-fg"><label>Empresa</label><input type="text" id="dp-empresa" placeholder="TechnoSoftware C.A."/></div>
+            <div class="dp-fg"><label>Cargo</label><input type="text" id="dp-cargo" placeholder="Gerente de Proyectos"/></div>
+            <div class="dp-fg"><label>Profesión</label><input type="text" id="dp-profesion" placeholder="Ej: Ingeniero de Software, Contador, etc."/></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dp-card">
+        <div class="dp-card-head">🔐 Cuenta</div>
+        <div class="dp-form">
+          <div class="dp-fg"><label>Correo electrónico</label><input type="email" id="dp-correo" placeholder="correo@empresa.com"/></div>
+          <div class="dp-fg"><label>Usuario</label><input type="text" id="dp-usuario" placeholder="usuario123" readonly style="opacity:.6;cursor:not-allowed"/></div>
+          <div class="dp-fg">
+            <label>Contraseña</label>
+            <button class="dp-pw-btn" onclick="openPwModal()">🔑 Cambiar contraseña</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="dp-actions">
+        <button class="dp-btn-save" onclick="savePersonalData()">💾 Guardar cambios</button>
+        <button class="dp-btn-cancel" onclick="navTo('home',null)">✕ Cancelar</button>
+      </div>
+
+      </div><!-- /dp-edit-view -->
+    </div><!-- /panel-datos-personales -->
+
+  </main>
+</div>
+
+<!-- ═══ MODAL CAMBIAR CONTRASEÑA ═══ -->
+<div id="pwModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center">
+  <div class="pw-modal-box">
+    <div class="pw-modal-head">🔑 Cambiar Contraseña</div>
+    <div class="pw-modal-body">
+      <div class="dp-fg">
+        <label>Contraseña actual</label>
+        <div class="pw-input-wrap">
+          <input type="password" id="pw-actual" placeholder="••••••••"/>
+          <span class="pw-eye" onclick="toggleDpPw('pw-actual',this)">👁</span>
+        </div>
+      </div>
+      <div class="dp-fg">
+        <label>Nueva contraseña</label>
+        <div class="pw-input-wrap">
+          <input type="password" id="pw-nueva" placeholder="Mín. 8 car. · Mayús. · Núm. · Especial" oninput="checkPwStrength(this.value)"/>
+          <span class="pw-eye" onclick="toggleDpPw('pw-nueva',this)">👁</span>
+        </div>
+        <div class="pw-strength-bar"><div id="pw-strength-fill"></div></div>
+        <p id="pw-strength-label" style="font-size:.72rem;margin-top:.2rem;color:rgba(154,175,212,.5)"></p>
+      </div>
+      <div class="dp-fg">
+        <label>Confirmar nueva contraseña</label>
+        <div class="pw-input-wrap">
+          <input type="password" id="pw-confirm" placeholder="••••••••"/>
+          <span class="pw-eye" onclick="toggleDpPw('pw-confirm',this)">👁</span>
+        </div>
+      </div>
+      <div id="pw-err" style="display:none;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);border-radius:8px;padding:.6rem .9rem;font-size:.82rem;color:#ff4d6d;margin-top:.25rem"></div>
+      <div class="pw-modal-btns">
+        <button class="dp-btn-save" onclick="submitPwChange()">✓ Continuar</button>
+        <button class="dp-btn-cancel" onclick="closePwModal()">✕ Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL CONFIRMAR CAMBIO PW ═══ -->
+<div id="pwConfirmModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);align-items:center;justify-content:center">
+  <div class="pw-modal-box" style="max-width:400px">
+    <div class="pw-modal-head" style="font-size:.95rem">⚠️ Confirmar cambio</div>
+    <div class="pw-modal-body">
+      <p style="font-size:.88rem;color:rgba(154,175,212,.8);text-align:center;line-height:1.6;margin-bottom:1.25rem">
+        ¿Estás seguro de que deseas cambiar tu contraseña?<br/>Esta acción no se puede deshacer.
+      </p>
+      <div class="pw-modal-btns">
+        <button class="dp-btn-save" onclick="confirmPwChange()">✓ Sí, cambiar</button>
+        <button class="dp-btn-cancel" onclick="document.getElementById('pwConfirmModal').style.display='none'">✕ No</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/loader.js"></script>
+<script>
+var email = sessionStorage.getItem('ts_user_email');
+var name  = sessionStorage.getItem('ts_user_name') || 'Usuario';
+
+if (!email) {
+  document.getElementById('notAuth').style.display    = 'flex';
+  document.getElementById('dashContent').style.display = 'none';
+} else {
+  document.getElementById('notAuth').style.display    = 'none';
+  var dc = document.getElementById('dashContent');
+  dc.style.display = 'flex';
+  var cap = name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('nav-username').textContent = cap;
+  document.getElementById('welcome-name').textContent = cap;
+  // Show reminder if first time or profile incomplete
+  var data = JSON.parse(localStorage.getItem('ts_personal_data') || '{}');
+  var complete = !!(data.nombre && data.apellido && data.cedula && data.correo);
+  var reminder = document.getElementById('profile-reminder');
+  if (reminder && !complete) reminder.style.display = 'flex';
+}
+
+function toggleSub(id, item) {
+  var sub = document.getElementById(id);
+  var open = sub.classList.contains('open');
+  document.querySelectorAll('.sidebar-sub').forEach(function(s){ s.classList.remove('open'); });
+  document.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('open'); });
+  if (!open) { sub.classList.add('open'); item.classList.add('open'); }
+}
+
+/* ── Panels ── */
+var PANELS = ['dashContent','panel-datos-personales'];
+function showPanel(id) {
+  PANELS.forEach(function(p){ 
+    var el = document.getElementById(p);
+    if (el) el.style.display = 'none';
+  });
+  var target = document.getElementById(id);
+  if (target) target.style.display = 'flex';
+}
+
+// Sections that require completed profile
+function switchToEditMode() {
+  var data = JSON.parse(localStorage.getItem('ts_personal_data') || '{}');
+  var email = sessionStorage.getItem('ts_user_email') || '';
+  var name  = sessionStorage.getItem('ts_user_name')  || '';
+  document.getElementById('dp-report-view').style.display = 'none';
+  document.getElementById('dp-edit-view').style.display   = 'flex';
+  // Pre-fill form
+  document.getElementById('dp-display-name').textContent  = data.nombre ? data.nombre+' '+(data.apellido||'') : name;
+  document.getElementById('dp-display-email').textContent = data.correo || email;
+  document.getElementById('dp-nombre').value    = data.nombre    || '';
+  document.getElementById('dp-apellido').value  = data.apellido  || '';
+  document.getElementById('dp-cedula').value    = data.cedula    || '';
+  document.getElementById('dp-dir-hab').value   = data.dirHab    || '';
+  document.getElementById('dp-dir-emp').value   = data.dirEmp    || '';
+  document.getElementById('dp-tel-hab').value   = data.telHab    || '';
+  document.getElementById('dp-tel-emp').value   = data.telEmp    || '';
+  document.getElementById('dp-tel-mov').value   = data.telMov    || '';
+  document.getElementById('dp-empresa').value   = data.empresa   || '';
+  document.getElementById('dp-cargo').value     = data.cargo     || '';
+  document.getElementById('dp-profesion').value = data.profesion || '';
+  document.getElementById('dp-correo').value    = data.correo    || email;
+  document.getElementById('dp-usuario').value   = name;
+}
+
+var LOCKED_SECTIONS = ['historial','estado-cuenta','estatus-proyectos','historial-proyectos','proyectos-culminados','consultoria','nuevo-proyecto'];
+
+function isProfileComplete() {
+  var data = JSON.parse(localStorage.getItem('ts_personal_data') || '{}');
+  return !!(data.nombre && data.apellido && data.cedula && data.correo);
+}
+
+function showLockedToast(section) {
+  var existing = document.getElementById('locked-toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'locked-toast';
+  t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);z-index:99999;background:#0d1628;border:1px solid rgba(255,180,0,.45);border-radius:12px;padding:.85rem 1.4rem;display:flex;align-items:center;gap:.75rem;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:toastIn .25s ease';
+  t.innerHTML = '<span style="font-size:1.2rem">🔒</span><div><p style="font-family:Rajdhani,sans-serif;font-size:.85rem;font-weight:700;color:rgba(255,200,60,.9);letter-spacing:.06em">SECCIÓN BLOQUEADA</p><p style="font-size:.78rem;color:rgba(200,170,100,.75)">Completa tus datos personales para acceder.</p></div>';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.remove(); }, 3500);
+}
+
+function navTo(section, el) {
+  document.querySelectorAll('.sidebar-subitem,.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  
+  // Check if section is locked
+  if (LOCKED_SECTIONS.indexOf(section) >= 0 && !isProfileComplete()) {
+    showLockedToast(section);
+    // Highlight reminder
+    var rem = document.getElementById('profile-reminder');
+    if (rem) { rem.style.display='flex'; rem.scrollIntoView({behavior:'smooth',block:'center'}); rem.style.animation='reminderPulse .4s ease'; setTimeout(function(){ rem.style.animation=''; },400); }
+    return;
+  }
+
+  if (section === 'home') {
+    showPanel('dashContent');
+  } else if (section === 'datos-personales') {
+    loadPersonalData();
+    showPanel('panel-datos-personales');
+  } else {
+    showPanel('dashContent'); // fallback for unbuilt sections
+  }
+}
+
+/* ── Datos Personales ── */
+function val(v){ return v || '<span class="dp-report-value empty">Sin registrar</span>'; }
+
+function loadPersonalData() {
+  var email = sessionStorage.getItem('ts_user_email') || '';
+  var name  = sessionStorage.getItem('ts_user_name')  || '';
+  var data  = JSON.parse(localStorage.getItem('ts_personal_data') || '{}');
+  var complete = !!(data.nombre && data.apellido && data.cedula && data.correo);
+
+  if (complete) {
+    // ── Report mode ──
+    document.getElementById('dp-report-view').style.display = 'flex';
+    document.getElementById('dp-edit-view').style.display   = 'none';
+    var fullname = (data.nombre||'') + ' ' + (data.apellido||'');
+    document.getElementById('rpt-fullname').textContent  = fullname.trim();
+    document.getElementById('rpt-email').textContent     = data.correo || email;
+    document.getElementById('rpt-nombre').innerHTML      = val(data.nombre);
+    document.getElementById('rpt-apellido').innerHTML    = val(data.apellido);
+    document.getElementById('rpt-cedula').innerHTML      = val(data.cedula);
+    document.getElementById('rpt-dir-hab').innerHTML     = val(data.dirHab);
+    document.getElementById('rpt-dir-emp').innerHTML     = val(data.dirEmp);
+    document.getElementById('rpt-tel-hab').innerHTML     = val(data.telHab);
+    document.getElementById('rpt-tel-emp').innerHTML     = val(data.telEmp);
+    document.getElementById('rpt-tel-mov').innerHTML     = val(data.telMov);
+    document.getElementById('rpt-empresa').innerHTML     = val(data.empresa);
+    document.getElementById('rpt-cargo').innerHTML       = val(data.cargo);
+    document.getElementById('rpt-profesion').innerHTML   = val(data.profesion);
+    document.getElementById('rpt-correo').innerHTML      = val(data.correo);
+    document.getElementById('rpt-usuario').textContent   = name;
+    var savedAvatar = localStorage.getItem('ts_avatar');
+    if (savedAvatar) {
+      document.getElementById('rpt-avatar').src = savedAvatar;
+      document.getElementById('rpt-avatar').style.display = 'block';
+      document.getElementById('rpt-avatar-icon').style.display = 'none';
+    }
+    // Hide reminder
+    var rem = document.getElementById('profile-reminder');
+    if (rem) rem.style.display = 'none';
+    return;
+  }
+
+  // ── Edit mode (incomplete) ──
+  document.getElementById('dp-report-view').style.display = 'none';
+  document.getElementById('dp-edit-view').style.display   = 'flex';
+  document.getElementById('dp-display-name').textContent  = data.nombre ? data.nombre + ' ' + (data.apellido||'') : name;
+  document.getElementById('dp-display-email').textContent = data.correo || email;
+  document.getElementById('dp-nombre').value    = data.nombre   || '';
+  document.getElementById('dp-apellido').value  = data.apellido || '';
+  document.getElementById('dp-cedula').value    = data.cedula   || '';
+  document.getElementById('dp-dir-hab').value   = data.dirHab   || '';
+  document.getElementById('dp-dir-emp').value   = data.dirEmp   || '';
+  document.getElementById('dp-tel-hab').value   = data.telHab   || '';
+  document.getElementById('dp-tel-emp').value   = data.telEmp   || '';
+  document.getElementById('dp-tel-mov').value   = data.telMov   || '';
+  document.getElementById('dp-empresa').value    = data.empresa   || '';
+  document.getElementById('dp-cargo').value      = data.cargo     || '';
+  document.getElementById('dp-profesion').value  = data.profesion || '';
+  document.getElementById('dp-correo').value    = data.correo   || email;
+  document.getElementById('dp-usuario').value   = name;
+  // Avatar
+  var savedAvatar = localStorage.getItem('ts_avatar');
+  if (savedAvatar) {
+    document.getElementById('dp-avatar-img').src = savedAvatar;
+    document.getElementById('dp-avatar-img').style.display = 'block';
+    document.getElementById('dp-avatar-placeholder').style.display = 'none';
+  }
+}
+
+function savePersonalData() {
+  var data = {
+    nombre:   document.getElementById('dp-nombre').value.trim(),
+    apellido: document.getElementById('dp-apellido').value.trim(),
+    cedula:   document.getElementById('dp-cedula').value.trim(),
+    dirHab:   document.getElementById('dp-dir-hab').value.trim(),
+    dirEmp:   document.getElementById('dp-dir-emp').value.trim(),
+    telHab:   document.getElementById('dp-tel-hab').value.trim(),
+    telEmp:   document.getElementById('dp-tel-emp').value.trim(),
+    telMov:   document.getElementById('dp-tel-mov').value.trim(),
+    empresa:    document.getElementById('dp-empresa').value.trim(),
+    cargo:      document.getElementById('dp-cargo').value.trim(),
+    profesion:  document.getElementById('dp-profesion').value.trim(),
+    correo:   document.getElementById('dp-correo').value.trim(),
+  };
+  localStorage.setItem('ts_personal_data', JSON.stringify(data));
+  // Show success toast
+  showToast('✅ Datos guardados correctamente');
+  loadPersonalData();
+  // Hide reminder if complete
+  var d2 = JSON.parse(localStorage.getItem('ts_personal_data') || '{}');
+  if (d2.nombre && d2.apellido && d2.cedula && d2.correo) {
+    var rem = document.getElementById('profile-reminder');
+    if (rem) rem.style.display = 'none';
+  }
+}
+
+function handleAvatarChange(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var src = e.target.result;
+    localStorage.setItem('ts_avatar', src);
+    document.getElementById('dp-avatar-img').src = src;
+    document.getElementById('dp-avatar-img').style.display = 'block';
+    document.getElementById('dp-avatar-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,180,80,.9),rgba(0,130,60,.8));color:#fff;padding:.7rem 1.6rem;border-radius:30px;font-family:Rajdhani,sans-serif;font-size:.88rem;font-weight:600;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .4s';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.remove(); },400); }, 2600);
+}
+
+/* ── Password Modal ── */
+function openPwModal() {
+  ['pw-actual','pw-nueva','pw-confirm'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('pw-err').style.display = 'none';
+  document.getElementById('pw-strength-fill').style.width = '0%';
+  document.getElementById('pw-strength-label').textContent = '';
+  document.getElementById('pwModal').style.display = 'flex';
+}
+function closePwModal() { document.getElementById('pwModal').style.display = 'none'; }
+
+function toggleDpPw(id, btn) {
+  var inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function checkPwStrength(val) {
+  var fill  = document.getElementById('pw-strength-fill');
+  var label = document.getElementById('pw-strength-label');
+  var score = 0;
+  if (val.length >= 8)              score++;
+  if (/[A-Z]/.test(val))           score++;
+  if (/[0-9]/.test(val))           score++;
+  if (/[^A-Za-z0-9]/.test(val))    score++;
+  var pct   = (score / 4) * 100;
+  var color = score <= 1 ? '#ff4d6d' : score === 2 ? '#ffa500' : score === 3 ? '#ffd700' : '#00e676';
+  var text  = score <= 1 ? 'Muy débil' : score === 2 ? 'Débil' : score === 3 ? 'Buena' : '✓ Fuerte';
+  fill.style.width      = pct + '%';
+  fill.style.background = color;
+  label.style.color     = color;
+  label.textContent     = val.length ? text : '';
+}
+
+function submitPwChange() {
+  var actual   = document.getElementById('pw-actual').value;
+  var nueva    = document.getElementById('pw-nueva').value;
+  var confirm  = document.getElementById('pw-confirm').value;
+  var errEl    = document.getElementById('pw-err');
+  errEl.style.display = 'none';
+
+  if (!actual) { errEl.textContent = '✕ Ingresa tu contraseña actual.'; errEl.style.display='block'; return; }
+  if (nueva.length < 8) { errEl.textContent = '✕ Mínimo 8 caracteres.'; errEl.style.display='block'; return; }
+  if (!/[A-Z]/.test(nueva)) { errEl.textContent = '✕ Debe contener al menos una mayúscula.'; errEl.style.display='block'; return; }
+  if (!/[0-9]/.test(nueva)) { errEl.textContent = '✕ Debe contener al menos un número.'; errEl.style.display='block'; return; }
+  if (!/[^A-Za-z0-9]/.test(nueva)) { errEl.textContent = '✕ Debe contener al menos un carácter especial (!@#$...).'; errEl.style.display='block'; return; }
+  if (nueva !== confirm) { errEl.textContent = '✕ Las contraseñas no coinciden.'; errEl.style.display='block'; return; }
+
+  // All OK → show confirmation modal
+  document.getElementById('pwConfirmModal').style.display = 'flex';
+}
+
+function confirmPwChange() {
+  document.getElementById('pwConfirmModal').style.display = 'none';
+  closePwModal();
+  showToast('✅ Contraseña actualizada correctamente');
+}
+
+function doLogout() {
+  if (window.TSLoader) TSLoader.show('Cerrando sesión...', 1200);
+  setTimeout(function() {
+    sessionStorage.removeItem('ts_user_email');
+    sessionStorage.removeItem('ts_user_name');
+    window.location.href = './login.html';
+  }, 1100);
+}
+
+window.addEventListener('load', function() {
+  if (window.TSLoader) TSLoader.hide();
+});
+</script>
+</body>
+</html>

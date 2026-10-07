@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════
+   LOADER GLOBAL — Logo giratorio
+   Incluir en todas las páginas
+═══════════════════════════════════════ */
+
+#ts-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(5, 9, 26, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+#ts-loader.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Logo contenedor */
+.ts-loader-logo {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* La imagen del logo */
+.ts-loader-logo img {
+  width: 90px;
+  height: auto;
+  filter:
+    drop-shadow(0 0 18px rgba(0, 207, 255, .95))
+    drop-shadow(0 0 40px rgba(0, 207, 255, .5));
+  animation: loaderSpin 1.4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* Anillo giratorio alrededor del logo */
+.ts-loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(0, 207, 255, .9);
+  border-right-color: rgba(77, 127, 255, .5);
+  animation: loaderRing 1s linear infinite;
+}
+
+.ts-loader-ring-2 {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-bottom-color: rgba(0, 207, 255, .4);
+  animation: loaderRing 1.6s linear infinite reverse;
+}
+
+@keyframes loaderSpin {
+  0%   { transform: rotateY(0deg)   scale(1); }
+  25%  { transform: rotateY(90deg)  scale(1.05); }
+  50%  { transform: rotateY(180deg) scale(0.95); }
+  75%  { transform: rotateY(270deg) scale(1.05); }
+  100% { transform: rotateY(360deg) scale(1); }
+}
+
+@keyframes loaderRing {
+  to { transform: rotate(360deg); }
+}
+
+/* Texto del loader */
+.ts-loader-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(154, 175, 212, .7);
+  animation: loaderPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes loaderPulse {
+  0%, 100% { opacity: .5; }
+  50%       { opacity: 1; }
+}
+
+/* Barra de progreso */
+.ts-loader-bar-wrap {
+  width: 160px;
+  height: 2px;
+  background: rgba(77, 127, 255, .15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ts-loader-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent, #4d7fff), rgba(0, 207, 255, .9));
+  border-radius: 2px;
+  transition: width .1s linear;
+}

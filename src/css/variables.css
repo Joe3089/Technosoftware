@@ -1,0 +1,22 @@
+/* ═══════════════════════════════════
+   TECHNOSOFTWARE — Variables CSS
+═══════════════════════════════════ */
+:root {
+  --navy:        #0e1628;
+  --navy-deep:   #080e1a;
+  --navy-mid:    #152040;
+  --navy-card:   rgba(15, 24, 56, 0.7);
+  --blue:        #1e3573;
+  --blue-bright: #2a4aad;
+  --accent:      #4d7fff;
+  --cyan:        #00cfff;
+  --white:       #f0f4ff;
+  --silver:      #9aafd4;
+  --glass-bd:    rgba(77, 127, 255, 0.2);
+  --tr:          0.38s cubic-bezier(.4, 0, .2, 1);
+  --r:           0.75rem;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-ui:      'Rajdhani', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'Orbitron', sans-serif;
+}
