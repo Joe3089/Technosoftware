@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Target, Code2, Handshake, ShieldCheck, Rocket, Headphones } from "lucide-react";
+import { Compass, Unlock, Boxes, Workflow, Users, Headphones } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import InfoPage from "@/components/sections/InfoPage";
@@ -7,12 +7,12 @@ import InfoPage from "@/components/sections/InfoPage";
 export const metadata: Metadata = { title: "Misión — Technosoftware" };
 
 const ITEMS = [
-  { icon: <Target className="w-6 h-6 text-blue-accent" />, title: "Soluciones a medida", text: "Diseñamos software que responde a las necesidades reales de cada negocio, no plantillas genéricas." },
-  { icon: <Code2 className="w-6 h-6 text-blue-accent" />, title: "Calidad técnica", text: "Aplicamos buenas prácticas, código limpio y pruebas para entregar productos estables y mantenibles." },
-  { icon: <Headphones className="w-6 h-6 text-blue-accent" />, title: "Soporte cercano", text: "Acompañamos a nuestros clientes con soporte técnico especializado antes, durante y después de cada entrega." },
-  { icon: <ShieldCheck className="w-6 h-6 text-blue-accent" />, title: "Seguridad", text: "Protegemos la información de nuestros clientes con estándares de seguridad desde el diseño." },
-  { icon: <Handshake className="w-6 h-6 text-blue-accent" />, title: "Confianza", text: "Construimos relaciones a largo plazo basadas en transparencia, compromiso y resultados medibles." },
-  { icon: <Rocket className="w-6 h-6 text-blue-accent" />, title: "Impacto", text: "Impulsamos la transformación digital para que las empresas sean más eficientes y competitivas." },
+  { icon: <Compass className="w-6 h-6 text-blue-accent" />, title: "Guía hacia el futuro digital", text: "Acompañamos a cada organización en su transformación digital, de la planificación a la puesta en marcha." },
+  { icon: <Unlock className="w-6 h-6 text-blue-accent" />, title: "Tecnología accesible", text: "Democratizamos el acceso a herramientas de gestión empresarial para empresas de todos los tamaños." },
+  { icon: <Boxes className="w-6 h-6 text-blue-accent" />, title: "Sistemas ERP", text: "Implementamos y adaptamos ERP que integran finanzas, inventario, ventas y RRHH en un solo lugar." },
+  { icon: <Workflow className="w-6 h-6 text-blue-accent" />, title: "Menos complejidad", text: "Simplificamos procesos operativos para que los equipos dediquen su tiempo a lo que realmente aporta valor." },
+  { icon: <Users className="w-6 h-6 text-blue-accent" />, title: "Talento humano", text: "Ponemos la tecnología al servicio de las personas, potenciando sus capacidades y su productividad." },
+  { icon: <Headphones className="w-6 h-6 text-blue-accent" />, title: "Soporte cercano", text: "Brindamos soporte técnico especializado antes, durante y después de cada implementación." },
 ];
 
 export default function MisionPage() {
@@ -24,7 +24,9 @@ export default function MisionPage() {
           eyebrow="Misión"
           title="NUESTRA"
           highlight="MISIÓN"
-          intro="Brindar soluciones tecnológicas innovadoras, seguras y a la medida —desarrollo de software, soporte técnico y consultoría— que ayuden a las empresas a optimizar sus procesos, crecer y alcanzar sus objetivos."
+          statement="Guiar a las organizaciones hacia el futuro digital, democratizando el acceso a tecnologías de gestión empresarial y sistemas ERP que simplifiquen la complejidad operativa y potencien el talento humano."
+          image={{ src: "/about/mision.jpg", width: 2400, height: 1340, alt: "Equipo de Technosoftware presentando un sistema de gestión empresarial" }}
+          pillarsTitle="CÓMO LO HACEMOS"
           items={ITEMS}
           next={{ href: "/vision", label: "Conoce nuestra visión" }}
         />
