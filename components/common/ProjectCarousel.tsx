@@ -5,79 +5,22 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Globe, Smartphone, Server, Bot, Cpu, Headphones, BarChart3 } from "lucide-react";
 
+// width/height = real pixel size of each file, so the frame takes the image's exact proportions
 const SLIDES: {
   category: string;
   Icon: typeof Globe;
   src: string;
-  gradient: string;
+  width: number;
+  height: number;
   accent: string;
-  contain?: boolean;
-  flush?: boolean;
-  position?: string;
-  bg?: string;
 }[] = [
-  {
-    category: "Páginas Web",
-    Icon: Globe,
-    src: "/projects/web.png",
-    contain: true,
-    flush: true, // no inner padding so the screenshot uses all available space
-    bg: "#03060e",
-    gradient: "from-blue-accent/30 to-blue/40",
-    accent: "rgba(77,127,255,0.6)",
-  },
-  {
-    category: "Apps Móviles",
-    Icon: Smartphone,
-    src: "/projects/mobile.png",
-    contain: true,
-    bg: "#ffffff",
-    gradient: "from-cyan/20 to-blue-accent/30",
-    accent: "rgba(0,207,255,0.6)",
-  },
-  {
-    category: "ERP",
-    Icon: Server,
-    src: "/projects/erp-hd.jpg",
-    contain: true,
-    flush: true, // blurred backdrop instead of white letterbox bars
-    gradient: "from-indigo-500/20 to-blue/40",
-    accent: "rgba(99,102,241,0.6)",
-  },
-  {
-    category: "Inteligencia Artificial",
-    Icon: Bot,
-    src: "/projects/IA.jpg",
-    gradient: "from-purple-500/20 to-blue-accent/20",
-    accent: "rgba(168,85,247,0.6)",
-  },
-  {
-    category: "Reparación de PC",
-    Icon: Cpu,
-    src: "/projects/reparacion-hd.jpg",
-    contain: true,
-    flush: true,
-    gradient: "from-orange-500/20 to-blue/30",
-    accent: "rgba(249,115,22,0.6)",
-  },
-  {
-    category: "ATC IT",
-    Icon: Headphones,
-    src: "/projects/atc-hd.jpg",
-    contain: true,
-    flush: true,
-    gradient: "from-green-500/20 to-cyan/20",
-    accent: "rgba(34,197,94,0.6)",
-  },
-  {
-    category: "Análisis de Datos",
-    Icon: BarChart3,
-    src: "/projects/analisis-hd.jpg",
-    contain: true,
-    flush: true,
-    gradient: "from-pink-500/20 to-blue-accent/20",
-    accent: "rgba(236,72,153,0.6)",
-  },
+  { category: "Páginas Web", Icon: Globe, src: "/projects/web.png", width: 1364, height: 636, accent: "rgba(77,127,255,0.6)" },
+  { category: "Apps Móviles", Icon: Smartphone, src: "/projects/mobile.png", width: 1131, height: 721, accent: "rgba(0,207,255,0.6)" },
+  { category: "ERP", Icon: Server, src: "/projects/erp-hd.jpg", width: 1920, height: 1149, accent: "rgba(99,102,241,0.6)" },
+  { category: "Inteligencia Artificial", Icon: Bot, src: "/projects/IA-hd.jpg", width: 1920, height: 1078, accent: "rgba(168,85,247,0.6)" },
+  { category: "Reparación de PC", Icon: Cpu, src: "/projects/reparacion-hd.jpg", width: 1920, height: 1280, accent: "rgba(249,115,22,0.6)" },
+  { category: "ATC IT", Icon: Headphones, src: "/projects/atc-hd.jpg", width: 1920, height: 1080, accent: "rgba(34,197,94,0.6)" },
+  { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-hd.jpg", width: 2400, height: 1800, accent: "rgba(236,72,153,0.6)" },
 ];
 
 const slideVariants = {
@@ -104,6 +47,7 @@ export default function ProjectCarousel() {
   const slide = SLIDES[current];
   const Icon = slide.Icon;
   const hasImage = !broken[slide.src];
+  const ratio = slide.width / slide.height;
 
   return (
     <div
@@ -111,12 +55,19 @@ export default function ProjectCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative w-full h-[clamp(200px,45vw,540px)] sm:h-[clamp(260px,50vh,540px)] rounded-2xl overflow-hidden border border-glass-bd shadow-[0_4px_32px_rgba(0,0,0,0.4)]">
-        <AnimatePresence mode="wait">
+      {/* Frame sized to the image: full width, but never taller than ~62vh nor wider than the file itself */}
+      <div
+        className="relative rounded-2xl overflow-hidden border border-glass-bd shadow-[0_4px_32px_rgba(0,0,0,0.4)] bg-navy-mid/40 transition-[width] duration-500"
+        style={{
+          aspectRatio: `${slide.width} / ${slide.height}`,
+          width: `min(100%, ${slide.width}px, calc(62vh * ${ratio.toFixed(4)}))`,
+        }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={current}
-            className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} flex flex-col items-center justify-center gap-4`}
-            style={{ background: hasImage && slide.bg ? slide.bg : `radial-gradient(ellipse at 30% 40%, ${slide.accent} 0%, rgba(8,14,26,0.95) 70%)` }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4"
+            style={hasImage ? undefined : { background: `radial-gradient(ellipse at 30% 40%, ${slide.accent} 0%, rgba(8,14,26,0.95) 70%)` }}
             variants={slideVariants}
             initial="enter"
             animate="center"
@@ -125,17 +76,6 @@ export default function ProjectCarousel() {
           >
             {hasImage && (
               <>
-                {/* Blurred copy fills the sides edge-to-edge behind the full image */}
-                {slide.flush && (
-                  <Image
-                    src={slide.src}
-                    alt=""
-                    aria-hidden
-                    fill
-                    sizes="640px"
-                    className="object-cover scale-125 blur-2xl brightness-50"
-                  />
-                )}
                 <Image
                   src={slide.src}
                   alt={slide.category}
@@ -143,23 +83,17 @@ export default function ProjectCarousel() {
                   sizes="(max-width: 1280px) 100vw, 1280px"
                   quality={95}
                   priority={current === 0}
-                  className={slide.contain ? `object-contain ${slide.flush ? "" : "p-4"}` : `object-cover ${slide.position ?? "object-center"}`}
-                  style={slide.flush ? {
-                    maskImage: "linear-gradient(to right, transparent, #000 6%, #000 94%, transparent)",
-                    WebkitMaskImage: "linear-gradient(to right, transparent, #000 6%, #000 94%, transparent)",
-                  } : undefined}
+                  className="object-cover"
                   onError={() => setBroken((b) => ({ ...b, [slide.src]: true }))}
                 />
-                {!slide.contain && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgba(5,9,26,0.85)] via-[rgba(5,9,26,0.2)] to-transparent" />
-                )}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[rgba(5,9,26,0.7)] to-transparent" />
               </>
             )}
-            <div className={hasImage ? `absolute bottom-0 left-0 flex items-center gap-3 ${slide.contain ? "m-2 sm:m-4 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[rgba(5,9,26,0.8)] backdrop-blur-sm" : "p-6"}` : "flex flex-col items-center gap-4"}>
-              <div className={`${hasImage ? "p-2.5" : "p-4"} rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm`}>
-                <Icon className={`${hasImage ? "w-6 h-6" : "w-10 h-10"} text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`} />
+            <div className={hasImage ? "absolute bottom-0 left-0 flex items-center gap-3 m-2 sm:m-4 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[rgba(5,9,26,0.8)] backdrop-blur-sm" : "flex flex-col items-center gap-4"}>
+              <div className={`${hasImage ? "p-2 sm:p-2.5" : "p-4"} rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm`}>
+                <Icon className={`${hasImage ? "w-5 h-5 sm:w-6 sm:h-6" : "w-10 h-10"} text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`} />
               </div>
-              <span className={`${hasImage ? "text-sm sm:text-lg" : "text-base"} font-ui font-semibold text-white/90 tracking-wide px-4 text-center`}>
+              <span className={`${hasImage ? "text-sm sm:text-lg" : "text-base"} font-ui font-semibold text-white/90 tracking-wide px-2 sm:px-4 text-center`}>
                 {slide.category}
               </span>
             </div>
