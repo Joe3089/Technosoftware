@@ -8,3 +8,4 @@ out
 *.tsbuildinfo
 
 src_backup/
+.env*
