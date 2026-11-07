@@ -17,7 +17,7 @@ const img = (archivo: string, alt: string): Captura => ({ src: `/projects/portaf
 
 const PROJECTS: Proyecto[] = [
   {
-    name: "Sasa", category: "SaaS", destacado: true,
+    name: "Sasa", category: "Sistema de gestión", destacado: true,
     description: "Sistema de gestión para comercios: punto de venta con control de cajas, inventario, compras a proveedores, producción por recetas, gastos, clientes y reportes con gráficos. Incluye asistente con IA.",
     tags: ["POS", "Inventario", "Producción", "Reportes", "IA"], badgeVariant: "cyan",
     capturas: [
@@ -49,7 +49,7 @@ const PROJECTS: Proyecto[] = [
     ],
   },
   {
-    name: "OptiSoft", category: "Web",
+    name: "OptiSoft", category: "Escritorio",
     description: "Sistema de gestión para ópticas: registro de ópticas y clientes, pagos de consultas, reportes médicos y estadísticos con gráficos.",
     tags: ["Gestión", "Pagos", "Reportes"], badgeVariant: "silver",
     capturas: [
@@ -96,7 +96,7 @@ function ProyectoCard({ project, i }: { project: Proyecto; i: number }) {
       <div className="relative aspect-[16/9] bg-navy-mid/40 border-b border-glass-bd">
         <Image key={portada.src} src={portada.src} alt={portada.alt} fill
           sizes={project.destacado ? "(min-width: 1024px) 800px, 100vw" : "(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"}
-          className="object-cover object-top animate-in fade-in duration-300" />
+          className="object-contain p-2 animate-in fade-in duration-300" />
         <Badge variant={project.badgeVariant} className="absolute top-3 right-3 backdrop-blur-sm">{project.category}</Badge>
       </div>
 
