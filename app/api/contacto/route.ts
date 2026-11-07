@@ -1,10 +1,14 @@
 import { json, isEmail, str } from "@/lib/api";
 import { createAdminClient } from "@/lib/supabase/server";
+import { permitido } from "@/lib/asistente";
 
 // POST /api/contacto — público: el formulario de la landing guarda al visitante como cliente "interesado"
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anon";
+  if (!permitido(`contacto:${ip}`, 5, 15 * 60_000)) return json({ error: "Demasiados envíos. Intenta más tarde." }, 429);
   const body = await req.json().catch(() => ({}));
-  if (body.website) return json({ ok: true }); // honeypot anti-bots
+  // Anti-bot: hidden field filled, or the form sent in under 2 s → pretend success, store nothing
+  if (body.website || (typeof body.ms === "number" && body.ms < 2000)) return json({ ok: true });
   if (!str(body.nombre, 120) || !isEmail(body.email)) return json({ error: "Nombre y correo válido son obligatorios" }, 400);
 
   const supabase = createAdminClient();

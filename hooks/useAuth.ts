@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { clearPersonalData } from "@/hooks/usePersonalData";
 
 export type Role = "admin" | "user";
 
@@ -85,7 +86,14 @@ export function useAuth(redirectIfUnauthenticated = true) {
   }
 
   async function logout() {
+    // Se registra antes de cerrar, mientras la sesión sigue siendo válida
+    await fetch("/api/actividad", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "cierre_sesion" }),
+    }).catch(() => {});
     await supabase.auth.signOut();
+    clearPersonalData();
     setUser(null);
     router.push("/login");
     router.refresh();

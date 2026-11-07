@@ -1,26 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, User, FolderOpen, MessageSquare, CreditCard,
-  LogOut, ChevronRight, Menu, X, History, BarChart2,
+  LogOut, ChevronRight, Menu, Inbox, Landmark, Wallet, History, BarChart2,
   CheckSquare, Calendar, PlusCircle, Smartphone, DollarSign,
-  FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail,
-} from "lucide-react";
+  FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail, FileSignature, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import SelectorIdioma, { Reloj } from "@/components/i18n/SelectorIdioma";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetodosPago } from "@/hooks/useMetodosPago";
+import type { Metodo } from "@/lib/pagos";
 import { usePersonalData, isProfileComplete } from "@/hooks/usePersonalData";
 
 export type PanelId =
   | "home"
   | "datos-personales" | "historial" | "estado-cuenta"
-  | "historial-proyectos" | "estatus-proyectos" | "proyectos-culminados"
+  | "historial-proyectos" | "estatus-proyectos" | "proyectos-culminados" | "contratacion" | "resenas"
   | "consultoria" | "nuevo-proyecto"
-  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal"
-  | "admin-clientes" | "admin-correos";
+  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal" | "mercantil-pa"
+  | "admin-clientes" | "admin-correos" | "admin-solicitudes" | "admin-pagos";
 
 interface SubItem { id: PanelId; label: string; icon: React.ElementType }
 interface Section { id: string; label: string; icon: React.ElementType; subs: SubItem[] }
@@ -40,6 +42,8 @@ const SECTIONS: Section[] = [
       { id: "historial-proyectos",   label: "Historial de Proyectos",  icon: History    },
       { id: "estatus-proyectos",     label: "Estatus de Proyectos",    icon: BarChart2  },
       { id: "proyectos-culminados",  label: "Proyectos Culminados",    icon: CheckSquare },
+      { id: "contratacion",          label: "Presupuesto y Contrato",  icon: FileSignature },
+      { id: "resenas",               label: "Reseñas",                 icon: Star },
     ],
   },
   {
@@ -57,6 +61,7 @@ const SECTIONS: Section[] = [
       { id: "airtm",      label: "AirTM",      icon: BadgeDollarSign },
       { id: "binance",    label: "Binance",    icon: DollarSign      },
       { id: "paypal",     label: "PayPal",     icon: DollarSign      },
+      { id: "mercantil-pa", label: "Mercantil Panamá", icon: Landmark },
     ],
   },
 ];
@@ -67,6 +72,8 @@ const ADMIN_SECTION: Section = {
   subs: [
     { id: "admin-clientes", label: "Clientes",        icon: Users },
     { id: "admin-correos",  label: "Correos Masivos", icon: Mail  },
+    { id: "admin-solicitudes", label: "Solicitudes",  icon: Inbox },
+    { id: "admin-pagos",       label: "Pagos",        icon: Wallet },
   ],
 };
 
@@ -80,15 +87,24 @@ interface Props {
 const LOCKED_PANELS: PanelId[] = [
   "consultoria", "nuevo-proyecto",
   "estatus-proyectos", "historial-proyectos", "proyectos-culminados",
-  "historial", "estado-cuenta",
+  "historial", "estado-cuenta", "contratacion",
 ];
 
 export default function DashboardLayout({ children, activePanel, onPanelChange }: Props) {
-  const { user, isAdmin, logout } = useAuth();
-  const sections = isAdmin ? [...SECTIONS, ADMIN_SECTION] : SECTIONS;
-  const { data } = usePersonalData();
-  const profileOk = isProfileComplete(data);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user, isAdmin, logout, loading: authLoading } = useAuth();
+  const metodos = useMetodosPago(!!user);
+  const sections = useMemo(() => {
+    if (isAdmin) return [...SECTIONS, ADMIN_SECTION];
+    // Users only see the payment methods that are active and configured (hidden while loading)
+    const ids = new Set(metodos?.map((m) => m.id) ?? []);
+    return SECTIONS
+      .map((s) => (s.id === "pagos" ? { ...s, subs: s.subs.filter((x) => ids.has(x.id.replace("-", "_") as Metodo["id"])) } : s))
+      .filter((s) => s.subs.length > 0);
+  }, [isAdmin, metodos]);
+  const { data, loading: perfilLoading } = usePersonalData();
+  // Only regular users must complete their profile; admins are never gated
+  const profileOk = isAdmin || isProfileComplete(data);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["perfil"]));
   const [toast, setToast] = useState(false);
 
@@ -107,47 +123,59 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
     });
   }
 
+  // Deep links (?panel=) go through the same rules as the menu: role and profile locks
+  useEffect(() => {
+    if (authLoading || perfilLoading) return;
+    if ((activePanel.startsWith("admin-") && !isAdmin) || (!profileOk && LOCKED_PANELS.includes(activePanel))) onPanelChange("home");
+  }, [activePanel, authLoading, perfilLoading, isAdmin, profileOk, onPanelChange]);
+
   function navigate(id: PanelId) {
     if (!profileOk && LOCKED_PANELS.includes(id)) {
       setToast(true);
       return;
     }
     onPanelChange(id);
+    setSidebarOpen(false); // closes the mobile drawer; no effect on desktop
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-navy-deep">
       {/* ── Top nav ── */}
       <header
-        className="sticky top-0 z-40 h-14 flex items-center px-4 gap-3 border-b border-glass-bd"
+        className="sticky top-0 z-40 h-[72px] flex items-center px-4 gap-3 border-b border-glass-bd"
         style={{ background: "rgba(8,14,26,0.95)", backdropFilter: "blur(20px)" }}
       >
+        {/* Menu toggle — mobile only; on desktop the sidebar is always visible */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-1.5 rounded-lg text-silver hover:text-white hover:bg-white/5 transition-colors"
+          aria-label="Abrir menú"
+          className="lg:hidden p-1.5 rounded-lg text-silver hover:text-white hover:bg-white/5 transition-colors"
         >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <Menu className="w-5 h-5" />
         </button>
 
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
-            src="/logo.png"
+            src="/logo-icon.png"
             alt="Technosoftware"
-            width={30}
-            height={30}
-            className="animate-spin-3d-slow drop-shadow-[0_0_6px_rgba(77,127,255,0.6)]"
+            width={56}
+            height={58}
+            priority
+            className="w-10 sm:w-14 h-auto drop-shadow-[0_0_6px_rgba(77,127,255,0.6)]"
           />
-          <span className="font-ui font-bold text-lg text-[#f0f4ff] tracking-widest hidden sm:block">
+          <span className="font-brand font-bold text-xl text-[#f0f4ff] tracking-wide hidden sm:block">
             TECHNOSOFTWARE
           </span>
         </Link>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 min-w-0">
+          <Reloj className="hidden xl:inline-flex" />
+          <SelectorIdioma />
           {user && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-glass-bd"
+            <div className="flex items-center gap-2 sm:px-3 sm:py-1.5 rounded-full sm:border border-glass-bd min-w-0 max-sm:!bg-transparent"
               style={{ background: "rgba(15,24,56,0.8)" }}>
-              <span className="w-2 h-2 rounded-full bg-status-green animate-pulse shrink-0" />
-              <span className="text-sm font-ui text-[#f0f4ff] max-w-[180px] truncate">{user.email}</span>
+              <span className="hidden sm:block w-2 h-2 rounded-full bg-status-green animate-pulse shrink-0" />
+              <span className="hidden sm:block text-sm font-ui text-[#f0f4ff] max-w-[180px] truncate">{user.email}</span>
               <span className={cn("text-xs font-ui font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border", isAdmin ? "text-cyan border-cyan/40 bg-cyan/10" : "text-silver border-glass-bd")}>
                 {isAdmin ? "Admin" : "Usuario"}
               </span>
@@ -169,7 +197,8 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
         <aside
           className={cn(
             "flex flex-col border-r border-glass-bd transition-all duration-300 overflow-hidden shrink-0",
-            sidebarOpen ? "w-[255px]" : "w-0"
+            "fixed top-[72px] bottom-0 left-0 z-30 lg:static lg:z-auto",
+            sidebarOpen ? "w-[min(255px,85vw)]" : "w-0 lg:w-[255px]"
           )}
           style={{ background: "rgba(8,14,26,0.9)", backdropFilter: "blur(12px)" }}
         >
@@ -246,7 +275,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
                                   : "text-silver/70 border-transparent hover:text-white hover:bg-white/5"
                               )}
                             >
-                              <span className="text-silver/40 text-xs">›</span>
+                              <span className={cn("text-cyan text-xs", activePanel !== id && "invisible")} aria-hidden="true">›</span>
                               <span className="flex-1 text-left">{label}</span>
                               {locked && <Lock className="w-3 h-3 text-silver/30 shrink-0" />}
                             </button>
@@ -273,7 +302,9 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
         </aside>
 
         {/* ── Main content ── */}
-        <main className="flex-1 overflow-y-auto p-6 relative">
+        {/* Tap outside the drawer to close it (mobile only) */}
+        {sidebarOpen && <button aria-label="Cerrar menú" onClick={() => setSidebarOpen(false)} className="lg:hidden fixed inset-0 top-[72px] z-20 bg-black/50" />}
+        <main className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 relative">
           <div
             className="pointer-events-none absolute inset-0 opacity-30"
             style={{

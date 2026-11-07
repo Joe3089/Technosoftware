@@ -26,6 +26,8 @@ export default function ContactSection() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [abierto] = useState(() => Date.now()); // bots submit instantly; humans take seconds
+  const [website, setWebsite] = useState("");   // honeypot: invisible to people, filled by bots
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,7 +40,7 @@ export default function ContactSection() {
     const res = await fetch("/api/contacto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, website, ms: Date.now() - abierto }),
     }).catch(() => null);
     setSending(false);
     if (!res?.ok) {
@@ -116,6 +118,10 @@ export default function ContactSection() {
             ) : (
               <form onSubmit={handleSubmit} className="glass-card rounded-xl p-5 sm:p-8 flex flex-col gap-5">
                 {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
+                <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+                  <label htmlFor="website">Sitio web</label>
+                  <input id="website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="nombre">Nombre *</Label>
                   <Input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} required placeholder="Tu nombre" autoComplete="name" />

@@ -5,9 +5,13 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
+    // Free text keeps mobile keyboards in mixed case; emails, passwords, URLs and numbers stay as typed.
+    const libre = !type || type === "text" || type === "search";
     return (
       <input
         type={type}
+        autoCapitalize={libre ? "sentences" : "none"}
+        autoCorrect={libre ? undefined : "off"}
         className={cn(
           "flex h-10 w-full rounded-lg border border-glass-bd bg-[rgba(5,9,26,0.5)] px-3 py-2 text-sm text-[#f0f4ff] font-body",
           "placeholder:text-silver/50",

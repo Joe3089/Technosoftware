@@ -28,7 +28,7 @@ export default function VisionPage() {
           image={{ src: "/about/vision.jpg", width: 2400, height: 937, alt: "Reunión corporativa revisando un panel de control de gestión" }}
           pillarsTitle="HACIA DÓNDE VAMOS"
           items={ITEMS}
-          next={{ href: "/quienes-somos", label: "Conoce quiénes somos" }}
+          next={[{ href: "/#proyectos", label: "Conoce nuestros proyectos" }, { href: "/#contacto", label: "Contáctanos" }]}
         />
       </main>
       <Footer />

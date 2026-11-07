@@ -31,8 +31,9 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
+        brand: ["var(--font-brand)", "sans-serif"],
         ui: ["var(--font-ui)", "sans-serif"],
-        body: ["var(--font-body)", "sans-serif"],
+        body: ["var(--font-ui)", "sans-serif"],
         mono: ["var(--font-ui)", "sans-serif"],
       },
       fontSize: {
@@ -68,6 +69,7 @@ const config: Config = {
         "card-hover": "0 8px 40px rgba(0,0,0,0.6), 0 0 30px rgba(77,127,255,0.15)",
       },
       keyframes: {
+        ticker: { "0%": { transform: "translateX(0)" }, "100%": { transform: "translateX(-50%)" } },
         "spin-3d": {
           "0%": { transform: "rotateY(0deg) scale(0.96)" },
           "50%": { transform: "rotateY(180deg) scale(1.04)" },
@@ -91,6 +93,7 @@ const config: Config = {
         },
       },
       animation: {
+        ticker: "ticker 28s linear infinite",
         "spin-3d": "spin-3d 7s linear infinite",
         "spin-3d-slow": "spin-3d 9s ease-in-out infinite",
         float: "float 7s ease-in-out infinite",

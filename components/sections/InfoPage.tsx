@@ -20,13 +20,15 @@ interface InfoPageProps {
   title: string;
   highlight: string;
   statement: string;
+  /** Optional longer text shown below the statement card */
+  body?: string[];
   image: { src: string; width: number; height: number; alt: string };
   pillarsTitle: string;
   items: { icon: ReactNode; title: string; text: string }[];
-  next: { href: string; label: string };
+  next: { href: string; label: string } | { href: string; label: string }[];
 }
 
-export default function InfoPage({ eyebrow, title, highlight, statement, image, pillarsTitle, items, next }: InfoPageProps) {
+export default function InfoPage({ eyebrow, title, highlight, statement, body, image, pillarsTitle, items, next }: InfoPageProps) {
   const pathname = usePathname();
 
   return (
@@ -102,6 +104,12 @@ export default function InfoPage({ eyebrow, title, highlight, statement, image, 
           </motion.blockquote>
         </div>
 
+        {body && (
+          <ScrollReveal className="max-w-3xl mx-auto mt-12 sm:mt-16 flex flex-col gap-4 text-silver leading-relaxed" >
+            {body.map((p) => <p key={p.slice(0, 32)} style={{ fontSize: "var(--fs-body)" }}>{p}</p>)}
+          </ScrollReveal>
+        )}
+
         {/* Pillars */}
         <ScrollReveal className="text-center mt-16 sm:mt-20 mb-8 sm:mb-10">
           <h2 className="font-display text-[#f0f4ff]" style={{ fontSize: "var(--fs-title)" }}>
@@ -130,7 +138,11 @@ export default function InfoPage({ eyebrow, title, highlight, statement, image, 
         </div>
 
         <ScrollReveal className="text-center mt-12">
-          <Link href={next.href} className="btn-ghost text-sm">{next.label} →</Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            {(Array.isArray(next) ? next : [next]).map((n) => (
+              <Link key={n.href} href={n.href} className="btn-ghost text-sm">{n.label} →</Link>
+            ))}
+          </div>
         </ScrollReveal>
       </div>
     </section>

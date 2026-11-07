@@ -1,40 +1,73 @@
 "use client";
 
-import { Server, ShoppingCart, Cloud, Bot, BarChart3, Headphones } from "lucide-react";
+import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import ScrollReveal from "@/components/common/ScrollReveal";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-const PROJECTS = [
+type Captura = { src: string; alt: string };
+type Proyecto = {
+  name: string; category: string; description: string; tags: string[];
+  badgeVariant: "default" | "cyan" | "silver"; capturas: Captura[]; destacado?: boolean;
+};
+
+const img = (archivo: string, alt: string): Captura => ({ src: `/projects/portafolio/${archivo}.webp`, alt });
+
+const PROJECTS: Proyecto[] = [
   {
-    icon: Server, name: "ERP Empresarial", category: "Web",
-    description: "Sistema de gestión integral para medianas y grandes empresas. Módulos de RRHH, finanzas, inventario y logística unificados.",
-    tags: ["React", "Node.js", "PostgreSQL"], badgeVariant: "default" as const,
+    name: "Sasa", category: "SaaS", destacado: true,
+    description: "Sistema de gestión para comercios: punto de venta con control de cajas, inventario, compras a proveedores, producción por recetas, gastos, clientes y reportes con gráficos. Incluye asistente con IA.",
+    tags: ["POS", "Inventario", "Producción", "Reportes", "IA"], badgeVariant: "cyan",
+    capturas: [
+      img("sasa-dashboard", "Sasa: dashboard con tareas y actividad reciente"),
+      img("sasa-pos", "Sasa: punto de venta con historial de caja"),
+      img("sasa-inventario", "Sasa: inventario de productos"),
+      img("sasa-reportes", "Sasa: reportes con gráficos"),
+    ],
   },
   {
-    icon: ShoppingCart, name: "AppFlow Commerce", category: "Mobile",
-    description: "Plataforma e-commerce mobile-first con checkout en 3 pasos, pagos integrados y analytics en tiempo real.",
-    tags: ["React Native", "Stripe", "Firebase"], badgeVariant: "cyan" as const,
+    name: "FerreVascal 7073", category: "E-commerce",
+    description: "Tienda online de ferretería con catálogo por categorías, precios en USD y bolívares y pedidos directos por WhatsApp.",
+    tags: ["Catálogo", "Carrito", "WhatsApp"], badgeVariant: "default",
+    capturas: [
+      img("ferrevascal-inicio", "FerreVascal: página de inicio"),
+      img("ferrevascal-catalogo", "FerreVascal: catálogo de productos"),
+      img("ferrevascal-productos", "FerreVascal: productos con precios"),
+    ],
   },
   {
-    icon: Cloud, name: "CloudNet Gateway", category: "Cloud",
-    description: "Infraestructura cloud escalable con auto-scaling, balanceo de carga y monitoreo proactivo 24/7.",
-    tags: ["AWS", "Terraform", "Kubernetes"], badgeVariant: "silver" as const,
+    name: "Quiniela Mundial 2026", category: "Web",
+    description: "Plataforma de pronósticos del Mundial 2026: partidos, grupos, ranking en vivo, selecciones, estadísticas históricas y noticias.",
+    tags: ["Pronósticos", "Ranking", "Estadísticas"], badgeVariant: "cyan",
+    capturas: [
+      img("quiniela-inicio", "Quiniela Mundial 2026: inicio"),
+      img("quiniela-partido", "Quiniela Mundial 2026: detalle de partido"),
+      img("quiniela-ranking", "Quiniela Mundial 2026: ranking global"),
+      img("quiniela-estadisticas", "Quiniela Mundial 2026: estadísticas"),
+    ],
   },
   {
-    icon: Bot, name: "AI Support Desk", category: "IA",
-    description: "Asistente virtual con IA para soporte al cliente. Resolución autónoma del 78% de tickets sin intervención humana.",
-    tags: ["Claude API", "Python", "Vector DB"], badgeVariant: "cyan" as const,
+    name: "OptiSoft", category: "Web",
+    description: "Sistema de gestión para ópticas: registro de ópticas y clientes, pagos de consultas, reportes médicos y estadísticos con gráficos.",
+    tags: ["Gestión", "Pagos", "Reportes"], badgeVariant: "silver",
+    capturas: [
+      img("optisoft-inicio", "OptiSoft: panel de inicio"),
+      img("optisoft-reportes", "OptiSoft: reportes estadísticos"),
+      img("optisoft-graficos", "OptiSoft: gráficos de consultas"),
+      img("optisoft-login", "OptiSoft: inicio de sesión"),
+    ],
   },
   {
-    icon: BarChart3, name: "DataSight Dashboard", category: "Analytics",
-    description: "Panel de inteligencia de negocio con visualizaciones interactivas, alertas configurables y exportación automática.",
-    tags: ["D3.js", "BigQuery", "dbt"], badgeVariant: "default" as const,
-  },
-  {
-    icon: Headphones, name: "TechSupport Pro", category: "Soporte",
-    description: "Plataforma de gestión de tickets con SLA automático, base de conocimiento IA y reportes de desempeño del equipo.",
-    tags: ["Next.js", "Redis", "Webhooks"], badgeVariant: "silver" as const,
+    name: "Optimizador de Funciones", category: "Escritorio",
+    description: "Aplicación de escritorio para métodos de optimización (Armijo, Wolfe, Fibonacci, búsqueda local) con gráficas 2D/3D, asistente IA y reportes exportables.",
+    tags: ["Python", "Qt", "Gráficas 3D", "IA"], badgeVariant: "default",
+    capturas: [
+      img("optimizador-inicio", "Optimizador de Funciones: pantalla de inicio"),
+      img("optimizador-panel", "Optimizador de Funciones: panel de control"),
+      img("optimizador-graficas", "Optimizador de Funciones: gráficas del método de Armijo"),
+    ],
   },
 ];
 
@@ -45,6 +78,56 @@ const cardVariants = {
     transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1], delay: i * 0.07 },
   }),
 };
+
+function ProyectoCard({ project, i }: { project: Proyecto; i: number }) {
+  const [activa, setActiva] = useState(0);
+  const portada = project.capturas[activa];
+  return (
+    <motion.article
+      custom={i}
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, amount: 0.08 }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+      className={cn("glass-card rounded-xl overflow-hidden flex flex-col", project.destacado && "lg:col-span-2")}
+      style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}
+    >
+      <div className="relative aspect-[16/9] bg-navy-mid/40 border-b border-glass-bd">
+        <Image key={portada.src} src={portada.src} alt={portada.alt} fill
+          sizes={project.destacado ? "(min-width: 1024px) 800px, 100vw" : "(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"}
+          className="object-cover object-top animate-in fade-in duration-300" />
+        <Badge variant={project.badgeVariant} className="absolute top-3 right-3 backdrop-blur-sm">{project.category}</Badge>
+      </div>
+
+      <div className="p-6 flex-1 flex flex-col gap-4">
+        <div className="flex gap-2" role="tablist" aria-label={`Capturas de ${project.name}`}>
+          {project.capturas.map((c, j) => (
+            <button key={c.src} type="button" role="tab" aria-selected={j === activa} aria-label={c.alt}
+              onClick={() => setActiva(j)}
+              className={cn("relative h-10 w-16 rounded-md overflow-hidden border transition-all",
+                j === activa ? "border-cyan ring-1 ring-cyan/50" : "border-glass-bd opacity-60 hover:opacity-100")}>
+              <Image src={c.src} alt="" fill sizes="64px" className="object-cover object-top" />
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 flex flex-col gap-2">
+          <h3 translate="no" className="font-ui font-semibold text-lg text-[#f0f4ff]">{project.name}</h3>
+          <p className="text-sm text-silver leading-relaxed">{project.description}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-glass-bd">
+          {project.tags.map((tag) => (
+            <span key={tag} className="text-xs font-mono text-silver/60 bg-white/5 px-2 py-0.5 rounded">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
 
 export default function ProjectsSection() {
   return (
@@ -61,46 +144,13 @@ export default function ProjectsSection() {
         </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PROJECTS.map((project, i) => {
-            const Icon = project.icon;
-            return (
-              <motion.article
-                key={project.name}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: false, amount: 0.08 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="glass-card rounded-xl p-6 flex flex-col gap-4 cursor-default"
-                style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="p-3 rounded-xl bg-blue-accent/10 border border-blue-accent/20 group-hover:border-blue-accent/40 transition-colors">
-                    <Icon className="w-6 h-6 text-blue-accent" />
-                  </div>
-                  <Badge variant={project.badgeVariant}>{project.category}</Badge>
-                </div>
-
-                <div className="flex-1 flex flex-col gap-2">
-                  <h3 className="font-ui font-semibold text-lg text-[#f0f4ff]">{project.name}</h3>
-                  <p className="text-sm text-silver leading-relaxed">{project.description}</p>
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-glass-bd">
-                  {project.tags.map((tag) => (
-                    <span key={tag} className="text-xs font-mono text-silver/60 bg-white/5 px-2 py-0.5 rounded">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </motion.article>
-            );
-          })}
+          {PROJECTS.map((project, i) => (
+            <ProyectoCard key={project.name} project={project} i={i} />
+          ))}
         </div>
 
         <ScrollReveal className="text-center mt-12">
-          <a href="#contacto" className="btn-ghost text-sm">Ver todos los proyectos →</a>
+          <a href="#contacto" className="btn-ghost text-sm">¿Quieres un proyecto así? Contáctanos →</a>
         </ScrollReveal>
       </div>
     </section>

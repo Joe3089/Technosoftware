@@ -36,8 +36,10 @@
   body {
     background-color: var(--navy-deep);
     color: var(--white);
-    font-family: var(--font-body), system-ui, sans-serif;
+    font-family: var(--font-ui), system-ui, sans-serif;
     overflow-x: hidden;
+    overflow-wrap: break-word;
+    -webkit-text-size-adjust: 100%;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(46, 82, 173, 0.12) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 80%, rgba(30, 53, 115, 0.1) 0%, transparent 60%);
@@ -144,4 +146,14 @@
   .preserve-3d {
     transform-style: preserve-3d;
   }
+}
+
+/* Phones: 16px form text so iOS Safari doesn't zoom in on focus; media never overflows the viewport */
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+img, video, canvas, iframe { max-width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker { animation-duration: 90s; }
 }

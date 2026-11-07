@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   User, Pencil, Save, X, Camera, Lock, Eye, EyeOff,
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { usePersonalData, isProfileComplete, completionPercent, type PersonalData } from "@/hooks/usePersonalData";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import AvatarCaptureDialog from "@/components/dashboard/AvatarCaptureDialog";
 
 /* ─── Password strength ─── */
 function strengthInfo(pw: string): { label: string; pct: number; color: string } {
@@ -158,7 +159,9 @@ export default function PersonalDataPanel() {
   const [editing, setEditing]   = useState(false);
   const [draft, setDraft]       = useState<PersonalData>(data);
   const [showPwModal, setShowPwModal] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [showAvatar, setShowAvatar] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
   const complete  = isProfileComplete(data);
   const pct       = completionPercent(data);
@@ -167,14 +170,22 @@ export default function PersonalDataPanel() {
 
   function startEdit() { setDraft({ ...data }); setEditing(true); }
   function cancelEdit() { setEditing(false); }
-  function commitEdit() { save(draft); setEditing(false); }
+  async function commitEdit() {
+    setSaving(true); setNotice(null);
+    try {
+      await save(draft);
+      setEditing(false);
+      setNotice({ ok: true, text: "Datos guardados correctamente." });
+    } catch (e) {
+      setNotice({ ok: false, text: (e as Error).message });
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => { if (ev.target?.result) saveAvatar(ev.target.result as string); };
-    reader.readAsDataURL(file);
+  async function handleAvatarSave(foto: Blob) {
+    await saveAvatar(foto);
+    setNotice({ ok: true, text: "Foto de perfil actualizada." });
   }
 
   function field(k: keyof PersonalData) {
@@ -190,12 +201,13 @@ export default function PersonalDataPanel() {
     >
       {/* ── Header card ── */}
       <div
-        className="rounded-2xl border border-glass-bd p-6 flex items-center gap-5"
+        className="rounded-2xl border border-glass-bd p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5"
         style={{ background: "linear-gradient(135deg, rgba(21,32,64,0.9) 0%, rgba(30,53,115,0.4) 100%)" }}
       >
+        <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="w-20 h-20 rounded-full border-2 border-blue-accent/40 overflow-hidden flex items-center justify-center"
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-blue-accent/40 overflow-hidden flex items-center justify-center"
             style={{ background: "rgba(77,127,255,0.12)" }}>
             {avatar
               // eslint-disable-next-line @next/next/no-img-element
@@ -203,22 +215,26 @@ export default function PersonalDataPanel() {
               : <User className="w-9 h-9 text-blue-accent" />}
           </div>
           <button
-            onClick={() => fileRef.current?.click()}
+            onClick={() => setShowAvatar(true)}
             className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center border border-glass-bd hover:bg-blue-accent/20 transition-colors"
             style={{ background: "rgba(8,14,26,0.9)" }}
             title="Cambiar foto"
           >
             <Camera className="w-3.5 h-3.5 text-silver" />
           </button>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+          <AvatarCaptureDialog open={showAvatar} onClose={() => setShowAvatar(false)} onSave={handleAvatarSave} />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h2 className="font-ui text-xl font-semibold text-[#f0f4ff] truncate">{fullName}</h2>
-          <p className="text-sm text-silver mt-0.5 truncate">{email}</p>
+          {/* Full name and email always visible: they wrap instead of being cut off */}
+          <h2 className="font-ui text-lg sm:text-xl font-semibold text-[#f0f4ff] leading-tight break-words">{fullName}</h2>
+          <p className="text-xs sm:text-sm text-silver mt-0.5 break-words">
+            {/* Breaks after the @ on narrow screens instead of mid-word */}
+            {email?.includes("@") ? <>{email.split("@")[0]}@<wbr />{email.split("@").slice(1).join("@")}</> : email}
+          </p>
           {/* Completion bar */}
           <div className="mt-3 flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xs font-ui">
+            <div className="flex items-center justify-between gap-2 text-xs font-ui">
               <span className="text-silver/60">Perfil completado</span>
               <span className={cn("font-semibold", complete ? "text-status-green" : "text-blue-accent")}>{pct}%</span>
             </div>
@@ -233,23 +249,32 @@ export default function PersonalDataPanel() {
           </div>
         </div>
 
-        <div className="shrink-0 flex flex-col gap-2">
+        </div>
+
+        <div className="shrink-0 flex flex-row sm:flex-col gap-2">
           {!editing && (
             <button
               onClick={startEdit}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-accent/30 text-sm font-ui text-blue-accent hover:bg-blue-accent/10 transition-colors"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-lg border border-blue-accent/30 text-sm font-ui text-blue-accent hover:bg-blue-accent/10 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" /> Editar
             </button>
           )}
           <button
             onClick={() => setShowPwModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-glass-bd text-sm font-ui text-silver hover:text-white hover:bg-white/5 transition-colors"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-lg border border-glass-bd text-sm font-ui text-silver hover:text-white hover:bg-white/5 transition-colors"
           >
             <Lock className="w-3.5 h-3.5" /> Contraseña
           </button>
         </div>
       </div>
+
+      {notice && (
+        <p className={cn("flex items-center gap-2 text-sm font-ui", notice.ok ? "text-status-green" : "text-red-400")}>
+          {notice.ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}
+          {notice.text}
+        </p>
+      )}
 
       {/* ── VIEW mode ── */}
       {!editing && (
@@ -319,8 +344,8 @@ export default function PersonalDataPanel() {
             <button onClick={cancelEdit} className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-glass-bd text-sm font-ui text-silver hover:text-white hover:bg-white/5 transition-all">
               <X className="w-4 h-4" /> Cancelar
             </button>
-            <button onClick={commitEdit} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-cta text-sm font-ui text-white hover:shadow-glow transition-all">
-              <Save className="w-4 h-4" /> Guardar cambios
+            <button onClick={commitEdit} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-cta text-sm font-ui text-white hover:shadow-glow transition-all disabled:opacity-60">
+              <Save className="w-4 h-4" /> {saving ? "Guardando…" : "Guardar cambios"}
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { requireRole, json, str } from "@/lib/api";
+import { registrarActividad } from "@/lib/actividad";
 
 const SEGMENTOS = ["interesados", "fijos", "todos"] as const;
 type Segmento = (typeof SEGMENTOS)[number];
@@ -64,6 +65,10 @@ export async function POST(req: Request) {
   }
 
   await supabase.from("campanas_email").insert({ asunto, segmento, enviados, fallidos, creado_por: user.id });
+  await registrarActividad({
+    userId: user.id, accion: "correo_masivo_enviado",
+    descripcion: `Envió el correo «${asunto}» a ${enviados} de ${clientes.length} clientes (${segmento})`, entidad: "campana",
+  });
   return json({ ok: fallidos === 0, enviados, fallidos, total: clientes.length });
 }
 

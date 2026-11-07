@@ -16,11 +16,11 @@ const SLIDES: {
 }[] = [
   { category: "Páginas Web", Icon: Globe, src: "/projects/web.png", width: 1364, height: 636, accent: "rgba(77,127,255,0.6)" },
   { category: "Apps Móviles", Icon: Smartphone, src: "/projects/mobile-w.jpg", width: 1364, height: 636, accent: "rgba(0,207,255,0.6)" },
-  { category: "ERP", Icon: Server, src: "/projects/erp-w.jpg", width: 1364, height: 636, accent: "rgba(99,102,241,0.6)" },
-  { category: "Inteligencia Artificial", Icon: Bot, src: "/projects/IA-w.jpg", width: 1364, height: 636, accent: "rgba(168,85,247,0.6)" },
-  { category: "Reparación de PC", Icon: Cpu, src: "/projects/reparacion-w.jpg", width: 1364, height: 636, accent: "rgba(249,115,22,0.6)" },
-  { category: "ATC IT", Icon: Headphones, src: "/projects/atc-w.jpg", width: 1364, height: 636, accent: "rgba(34,197,94,0.6)" },
-  { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-w.jpg", width: 1364, height: 636, accent: "rgba(236,72,153,0.6)" },
+  { category: "ERP", Icon: Server, src: "/projects/erp-w.jpg", width: 2094, height: 976, accent: "rgba(99,102,241,0.6)" },
+  { category: "Inteligencia Artificial", Icon: Bot, src: "/projects/IA-w.jpg", width: 2400, height: 1119, accent: "rgba(168,85,247,0.6)" },
+  { category: "Reparación de PC", Icon: Cpu, src: "/projects/reparacion-w.jpg", width: 2400, height: 1119, accent: "rgba(249,115,22,0.6)" },
+  { category: "ATC IT", Icon: Headphones, src: "/projects/atc-w.jpg", width: 1920, height: 895, accent: "rgba(34,197,94,0.6)" },
+  { category: "Análisis de Datos", Icon: BarChart3, src: "/projects/analisis-w.jpg", width: 2400, height: 1119, accent: "rgba(236,72,153,0.6)" },
 ];
 
 // Outgoing and incoming slides move together, so the frame is never empty
@@ -90,11 +90,11 @@ export default function ProjectCarousel() {
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[rgba(5,9,26,0.7)] to-transparent" />
               </>
             )}
-            <div className={hasImage ? "absolute bottom-0 left-0 flex items-center gap-3 m-2 sm:m-4 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[rgba(5,9,26,0.8)] backdrop-blur-sm" : "flex flex-col items-center gap-4"}>
-              <div className={`${hasImage ? "p-2 sm:p-2.5" : "p-4"} rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm`}>
-                <Icon className={`${hasImage ? "w-5 h-5 sm:w-6 sm:h-6" : "w-10 h-10"} text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`} />
+            <div className={hasImage ? "absolute bottom-0 left-0 flex items-center gap-2 m-2 sm:m-3 pl-1.5 pr-3 py-1 sm:py-1.5 rounded-lg bg-[rgba(5,9,26,0.75)] backdrop-blur-sm" : "flex flex-col items-center gap-4"}>
+              <div className={`${hasImage ? "p-1 sm:p-1.5 rounded-md" : "p-4 rounded-2xl"} border border-white/10 bg-white/5 backdrop-blur-sm`}>
+                <Icon className={`${hasImage ? "w-3.5 h-3.5 sm:w-4 sm:h-4" : "w-10 h-10"} text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]`} />
               </div>
-              <span className={`${hasImage ? "text-sm sm:text-lg" : "text-base"} font-ui font-semibold text-white/90 tracking-wide px-2 sm:px-4 text-center`}>
+              <span className={`${hasImage ? "text-xs sm:text-sm" : "text-base px-2 sm:px-4"} font-ui font-semibold text-white/90 tracking-wide text-center`}>
                 {slide.category}
               </span>
             </div>

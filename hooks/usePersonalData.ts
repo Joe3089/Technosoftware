@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export interface PersonalData {
   nombre: string;
@@ -22,14 +22,6 @@ const EMPTY: PersonalData = {
   empresa: "", cargo: "", profesion: "", correo: "",
 };
 
-function load(): PersonalData {
-  try {
-    return { ...EMPTY, ...JSON.parse(localStorage.getItem("ts_personal_data") ?? "{}") };
-  } catch {
-    return { ...EMPTY };
-  }
-}
-
 export function isProfileComplete(d: PersonalData) {
   return !!(d.nombre && d.apellido && d.cedula && d.correo);
 }
@@ -43,23 +35,67 @@ export function completionPercent(d: PersonalData): number {
   return Math.round((filled / fields.length) * 100);
 }
 
+/* ── Shared store: one request for every component that uses the hook ── */
+interface Perfil { data: PersonalData; avatar: string | null }
+let cache: Perfil | null = null;
+let pending: Promise<Perfil> | null = null;
+const listeners = new Set<(p: Perfil) => void>();
+
+function publish(p: Perfil) {
+  cache = p;
+  listeners.forEach((l) => l(p));
+}
+
+function fetchPerfil(): Promise<Perfil> {
+  pending ??= fetch("/api/perfil")
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((j) => ({ data: { ...EMPTY, ...j.datos }, avatar: j.avatarUrl ?? null }))
+    .catch(() => ({ data: { ...EMPTY }, avatar: null }))
+    .then((p) => { publish(p); pending = null; return p; });
+  return pending;
+}
+
+/** Forget the cached profile (call on logout so another account never sees it). */
+export function clearPersonalData() {
+  cache = null;
+  pending = null;
+}
+
+async function errorOf(r: Response) {
+  return (await r.json().catch(() => ({}))).error ?? "No se pudo guardar. Intenta de nuevo.";
+}
+
 export function usePersonalData() {
-  const [data, setData] = useState<PersonalData>(() =>
-    typeof window !== "undefined" ? load() : { ...EMPTY }
-  );
-  const [avatar, setAvatarState] = useState<string | null>(() =>
-    typeof window !== "undefined" ? localStorage.getItem("ts_avatar") : null
-  );
+  const [perfil, setPerfil] = useState<Perfil>(cache ?? { data: { ...EMPTY }, avatar: null });
+  const [loading, setLoading] = useState(!cache);
 
-  const save = useCallback((next: PersonalData) => {
-    setData(next);
-    localStorage.setItem("ts_personal_data", JSON.stringify(next));
+  useEffect(() => {
+    listeners.add(setPerfil);
+    if (!cache) fetchPerfil().finally(() => setLoading(false));
+    return () => { listeners.delete(setPerfil); };
   }, []);
 
-  const saveAvatar = useCallback((base64: string) => {
-    setAvatarState(base64);
-    localStorage.setItem("ts_avatar", base64);
+  /** Persists personal data on the server. Throws with a readable message on failure. */
+  const save = useCallback(async (next: PersonalData) => {
+    const r = await fetch("/api/perfil", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+    if (!r.ok) throw new Error(await errorOf(r));
+    const j = await r.json();
+    publish({ data: { ...EMPTY, ...j.datos }, avatar: cache?.avatar ?? null });
   }, []);
 
-  return { data, save, avatar, saveAvatar };
+  /** Uploads a new profile photo (validated again on the server). */
+  const saveAvatar = useCallback(async (foto: Blob) => {
+    const form = new FormData();
+    form.append("foto", foto, "avatar");
+    const r = await fetch("/api/perfil/avatar", { method: "POST", body: form });
+    if (!r.ok) throw new Error(await errorOf(r));
+    const j = await r.json();
+    publish({ data: cache?.data ?? { ...EMPTY }, avatar: j.avatarUrl });
+  }, []);
+
+  return { data: perfil.data, avatar: perfil.avatar, loading, save, saveAvatar };
 }

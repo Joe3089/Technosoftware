@@ -81,7 +81,7 @@ export default function HeroSection() {
           </a>
           <a href="#contacto" className="btn-ghost text-sm">
             <MessageSquare className="w-4 h-4" />
-            Hablar con Experto
+            Solicita Asesoría Especializada
           </a>
         </motion.div>
 

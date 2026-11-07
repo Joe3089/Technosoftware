@@ -2,9 +2,10 @@
 // Uso:  node --env-file=.env.local scripts/seed-admin.mjs
 import { createClient } from "@supabase/supabase-js";
 
-const { NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key, ADMIN_EMAIL: email, ADMIN_PASSWORD: password } = process.env;
+const { NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL: email, ADMIN_PASSWORD: password } = process.env;
+const key = SUPABASE_SECRET_KEY || SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key || !email || !password) {
-  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL o ADMIN_PASSWORD");
+  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY, ADMIN_EMAIL o ADMIN_PASSWORD");
   process.exit(1);
 }
 

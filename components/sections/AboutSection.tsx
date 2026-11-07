@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import ScrollReveal from "@/components/common/ScrollReveal";
 
@@ -34,9 +35,10 @@ export default function AboutSection() {
             EXPERTOS EN <span className="text-gradient">TECNOLOGÍA</span>
           </h2>
           <p className="mt-4 text-silver max-w-2xl mx-auto leading-relaxed">
-            Somos un equipo multidisciplinario dedicado a construir soluciones tecnológicas
-            que generan impacto real en los negocios de nuestros clientes alrededor del mundo.
+            Agencia de soporte y desarrollo de software: creamos soluciones a medida que
+            simplifican la gestión de tu empresa y la impulsan a crecer.
           </p>
+          <Link href="/quienes-somos" className="btn-ghost text-sm mt-6 inline-flex">Conoce más sobre nosotros →</Link>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">

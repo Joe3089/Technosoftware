@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Download, ChevronDown } from "lucide-react";
 import { useNavbarScroll } from "@/hooks/useNavbarScroll";
 import { cn } from "@/lib/utils";
+import SelectorIdioma, { Reloj } from "@/components/i18n/SelectorIdioma";
 
 const ABOUT_LINKS = [
   { href: "/quienes-somos", label: "Quiénes Somos" },
@@ -42,7 +43,7 @@ export default function Navbar() {
       )}
       style={{ height: "72px" }}
     >
-      <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+      <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="relative w-[110px] h-[110px] sm:w-[160px] sm:h-[160px]">
@@ -56,14 +57,14 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop links — absolutely centered */}
-        <ul className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+        {/* Desktop links — centered in the free space, so they never overlap the right-side controls */}
+        <ul className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-0.5 xl:gap-1">
           {NAV_LINKS.map((link) => (
             <li key={link.id} className="relative group">
               <Link
                 href={link.href}
                 className={cn(
-                  "relative inline-flex items-center gap-1 px-4 py-2 text-sm font-ui font-semibold uppercase tracking-wider transition-colors duration-300",
+                  "relative inline-flex items-center gap-1 px-3 xl:px-4 py-2 text-sm font-ui font-semibold uppercase tracking-wider whitespace-nowrap transition-colors duration-300",
                   isActive(link) ? "text-[#f0f4ff]" : "text-silver hover:text-[#f0f4ff]"
                 )}
               >
@@ -97,13 +98,19 @@ export default function Navbar() {
         </ul>
 
         {/* Login button */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Clock + language share one pill: the time shown is the one of the selected language's region */}
+          <div className="flex items-center rounded-lg border border-glass-bd">
+            <Reloj compacto className="hidden xl:inline-flex px-2.5 border-r border-glass-bd" />
+            <SelectorIdioma className="border-0" />
+          </div>
           <Link
             href="/login"
             className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-ui font-semibold text-white transition-all duration-300 bg-gradient-cta hover:shadow-glow hover:-translate-y-0.5"
           >
             <Download className="w-4 h-4" />
-            <span>Descarga nuestra app</span>
+            <span className="hidden xl:inline">Descarga nuestra app</span>
+            <span className="xl:hidden">Descarga la app</span>
           </Link>
           <Link href="/login" aria-label="Descarga nuestra app" className="sm:hidden p-2 text-silver hover:text-white transition-colors">
             <Download className="w-5 h-5" />
@@ -124,6 +131,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="lg:hidden glass-heavy border-t border-glass-bd max-h-[calc(100vh-72px)] overflow-y-auto">
+          <div className="px-4 sm:px-6 pt-4"><Reloj /></div>
           <ul className="px-4 sm:px-6 py-4 flex flex-col gap-2">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>

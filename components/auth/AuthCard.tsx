@@ -28,19 +28,16 @@ export default function AuthCard() {
         {/* Logo + brand */}
         <div className="flex flex-col items-center gap-3 mb-8">
           <Image
-            src="/logo.png"
+            src="/logo-full.png"
             alt="Technosoftware"
-            width={128}
-            height={128}
+            width={160}
+            height={56}
             priority
-            className="animate-spin-3d-slow drop-shadow-[0_0_16px_rgba(77,127,255,0.6)]"
+            className="w-40 h-auto"
           />
           <div className="text-center">
-            <span className="font-ui font-bold text-2xl text-[#f0f4ff] tracking-wider block">
-              TECHNOSOFTWARE
-            </span>
-            <span className="text-xs font-ui text-silver uppercase tracking-widest">
-              Portal de Cliente
+            <span className="text-sm font-ui font-medium text-silver">
+              Portal de clientes
             </span>
           </div>
         </div>

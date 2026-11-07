@@ -7,10 +7,10 @@ declare global {
   interface Window { google?: any; __gmapsLoading?: Promise<void> }
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
+export const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
 const DEFAULT_CENTER = { lat: 10.48, lng: -66.87 }; // Caracas
 
-function loadGoogleMaps(): Promise<void> {
+export function loadGoogleMaps(): Promise<void> {
   if (window.google?.maps) return Promise.resolve();
   if (window.__gmapsLoading) return window.__gmapsLoading;
   window.__gmapsLoading = new Promise((resolve, reject) => {

@@ -7,42 +7,32 @@ import { motion } from "framer-motion";
 import {
   MessageSquare, FolderOpen, Home, User,
   TrendingUp, CreditCard, Calendar, Star,
-  Clock, CheckCircle2, AlertTriangle, ArrowRight,
+  Clock, CheckCircle2, AlertTriangle, ArrowRight, FileSignature,
 } from "lucide-react";
+import { ESTADO_LABEL } from "@/lib/proyectos";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetodosPago } from "@/hooks/useMetodosPago";
 import { usePersonalData, isProfileComplete, completionPercent } from "@/hooks/usePersonalData";
 import { type PanelId } from "@/components/dashboard/DashboardLayout";
 import { cn } from "@/lib/utils";
 
-/* ─── Static data ─── */
-const STATS = [
-  { icon: FolderOpen,   label: "Proyectos activos", value: "3",   color: "text-blue-accent" },
-  { icon: CheckCircle2, label: "Completados",        value: "12",  color: "text-status-green" },
-  { icon: Clock,        label: "Horas soporte",      value: "48h", color: "text-cyan" },
-  { icon: Star,         label: "Valoración",         value: "4.9", color: "text-yellow-400" },
+interface Resumen {
+  activos: number; completados: number; consultoriasAbiertas: number; valoracion: number | null;
+  recientes: { id: string; nombre: string; estado: string; avance: number | null }[];
+  proximaReunion: { fecha_hora: string; zona_horaria: string; modalidad: string; estado: string } | null;
+}
+
+const QUICK_ACTIONS: { icon: React.ElementType; label: string; panel: PanelId; color: string }[] = [
+  { icon: MessageSquare, label: "Nueva consultoría",      panel: "consultoria",       color: "text-cyan"         },
+  { icon: FolderOpen,    label: "Ver mis proyectos",      panel: "estatus-proyectos", color: "text-blue-accent"  },
+  { icon: FileSignature, label: "Presupuesto y contrato", panel: "contratacion",      color: "text-status-green" },
 ];
 
-const QUICK_ACTIONS = [
-  { icon: MessageSquare, label: "Nuevo mensaje",   href: "#",  color: "text-cyan"         },
-  { icon: FolderOpen,    label: "Ver proyectos",   href: "#",  color: "text-blue-accent"  },
-  { icon: Home,          label: "Ir al inicio",    href: "/",  color: "text-status-green" },
-];
-
-const PAYMENTS = [
-  { name: "Zelle",      tag: "USD",  active: true  },
-  { name: "PayPal",     tag: "USD",  active: true  },
-  { name: "Binance",    tag: "USDT", active: true  },
-  { name: "AirTM",      tag: "USD",  active: false },
-  { name: "Pago Móvil", tag: "VES",  active: false },
-];
-
-const PROJECTS_PREVIEW = [
-  { name: "ERP Empresarial",   status: "En progreso", pct: 72,  color: "from-blue-accent to-blue-bright" },
-  { name: "AppFlow Commerce",  status: "Revisión",    pct: 95,  color: "from-cyan to-blue-accent"         },
-  { name: "CloudNet Gateway",  status: "Completado",  pct: 100, color: "from-status-green to-cyan"        },
-];
+const BARRA: Record<string, string> = {
+  completado: "from-status-green to-cyan", revision: "from-cyan to-blue-accent", pendiente: "from-silver/40 to-silver/20",
+};
 
 const LOCKED_SECTIONS = ["Contáctanos", "Estatus de Proyectos", "Historial", "Historial de Proyectos"];
 
@@ -69,8 +59,24 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
   const { user } = useAuth(false);
   const { data } = usePersonalData();
   const [loaded, setLoaded] = useState(false);
-  const profileComplete = isProfileComplete(data);
+  const isAdmin = user?.role === "admin";
+  const metodos = useMetodosPago(!!user);
+  const profileComplete = isAdmin || isProfileComplete(data);
   const pct = completionPercent(data);
+  const [resumen, setResumen] = useState<Resumen | null>(null);
+
+  useEffect(() => {
+    fetch("/api/resumen").then((r) => (r.ok ? r.json() : null)).then(setResumen).catch(() => {});
+  }, []);
+
+  const stats = [
+    { icon: FolderOpen,   label: "Proyectos activos",     value: resumen?.activos,              color: "text-blue-accent" },
+    { icon: CheckCircle2, label: "Completados",           value: resumen?.completados,          color: "text-status-green" },
+    { icon: Clock,        label: "Consultorías abiertas", value: resumen?.consultoriasAbiertas, color: "text-cyan" },
+    { icon: Star,         label: "Valoración",            value: resumen ? (resumen.valoracion?.toFixed(1) ?? "—") : undefined, color: "text-yellow-400" },
+  ];
+  const fmtReunion = (r: NonNullable<Resumen["proximaReunion"]>) =>
+    new Intl.DateTimeFormat("es", { dateStyle: "medium", timeStyle: "short", timeZone: r.zona_horaria }).format(new Date(r.fecha_hora));
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 400);
@@ -103,14 +109,14 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         />
         <div className="relative z-10 flex items-center gap-5 p-6">
           {/* Avatar circle */}
-          <div className="shrink-0 w-14 h-14 rounded-full flex items-center justify-center border-2 border-blue-accent/40"
+          <div className="shrink-0 w-20 h-20 rounded-full flex items-center justify-center border-2 border-blue-accent/40"
             style={{ background: "rgba(77,127,255,0.15)" }}>
-            <User className="w-7 h-7 text-blue-accent" />
+            <User className="w-10 h-10 text-blue-accent" />
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="font-ui text-xl font-semibold text-[#f0f4ff] truncate">
               Bienvenido,{" "}
-              <span className="text-cyan">{user?.email ?? user?.name ?? "usuario"}</span>
+              <span className="text-cyan break-all">{user?.email ?? user?.name ?? "usuario"}</span>
             </h1>
             <p className="text-sm text-silver mt-0.5">
               Estás dentro de tu panel de Technosoftware.{" "}
@@ -120,11 +126,11 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
           {/* Decorative 3D logo */}
           <div className="shrink-0 hidden lg:block">
             <Image
-              src="/logo.png"
+              src="/logo-full.png"
               alt="Technosoftware"
-              width={44}
-              height={44}
-              className="animate-spin-3d-slow drop-shadow-[0_0_16px_rgba(77,127,255,0.5)] opacity-70"
+              width={300}
+              height={105}
+              className="w-[300px] h-auto animate-spin-3d-slow drop-shadow-[0_0_16px_rgba(77,127,255,0.5)] opacity-90"
             />
           </div>
         </div>
@@ -136,7 +142,7 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="flex items-center gap-4 px-5 py-4 rounded-2xl border"
+          className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 rounded-2xl border"
           style={{
             background: "rgba(120,80,0,0.2)",
             borderColor: "rgba(234,179,8,0.35)",
@@ -176,10 +182,12 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         <Tile className="lg:col-span-4 p-5">
           <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60 mb-4">Resumen</p>
           <div className="grid grid-cols-2 gap-3">
-            {STATS.map(({ icon: Icon, label, value, color }) => (
+            {stats.map(({ icon: Icon, label, value, color }) => (
               <div key={label} className="flex flex-col gap-1">
                 <Icon className={cn("w-4 h-4", color)} />
-                <span className={cn("font-mono text-2xl font-bold leading-none", color)}>{value}</span>
+                {value === undefined
+                  ? <Skeleton className="h-6 w-10" />
+                  : <span className={cn("font-mono text-2xl font-bold leading-none", color)}>{value}</span>}
                 <span className="text-xs font-ui text-silver/70 leading-tight">{label}</span>
               </div>
             ))}
@@ -189,16 +197,16 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
         {/* Quick actions */}
         <Tile className="lg:col-span-4 p-5 flex flex-col gap-3">
           <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Acciones rápidas</p>
-          {QUICK_ACTIONS.map(({ icon: Icon, label, href, color }) => (
-            <Link
+          {QUICK_ACTIONS.map(({ icon: Icon, label, panel, color }) => (
+            <button
               key={label}
-              href={href}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-glass-bd hover:border-blue-accent/40 hover:bg-white/5 transition-all group"
+              onClick={() => onNavigate?.(panel)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-glass-bd hover:border-blue-accent/40 hover:bg-white/5 transition-all group text-left"
             >
               <Icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", color)} />
               <span className="text-sm font-ui text-silver group-hover:text-white transition-colors flex-1">{label}</span>
               <ChevronRightIcon />
-            </Link>
+            </button>
           ))}
         </Tile>
 
@@ -221,7 +229,9 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
                 transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
               />
             </div>
-            <p className="text-xs text-silver/50">Completa tus datos para desbloquear todas las funciones.</p>
+            <p className="text-xs text-silver/50">
+              {isAdmin ? "Opcional para administradores." : "Completa tus datos para desbloquear todas las funciones."}
+            </p>
           </div>
           <button
             onClick={() => onNavigate?.("datos-personales")}
@@ -231,35 +241,49 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
           </button>
         </Tile>
 
-        {/* Projects — wide */}
-        <Tile className="lg:col-span-8 p-5 flex flex-col gap-4">
+        {/* Projects — wide, spans two rows so payments + schedule stack beside it */}
+        <Tile className="lg:col-span-8 lg:row-span-2 p-5 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-accent" />
               <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Proyectos recientes</p>
             </div>
-            <Badge variant="default">3 activos</Badge>
+            {resumen && <Badge variant="default">{resumen.activos} {resumen.activos === 1 ? "activo" : "activos"}</Badge>}
           </div>
           <div className="flex flex-col gap-4">
-            {PROJECTS_PREVIEW.map(({ name, status, pct, color }) => (
-              <div key={name} className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-ui text-[#f0f4ff]">{name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-silver">{pct}%</span>
-                    <Badge variant={pct === 100 ? "green" : "default"}>{status}</Badge>
-                  </div>
-                </div>
-                <div className="h-1.5 rounded-full bg-navy-mid overflow-hidden">
-                  <motion.div
-                    className={cn("h-full rounded-full bg-gradient-to-r", color)}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                  />
-                </div>
+            {!resumen && [0, 1, 2].map((i) => <Skeleton key={i} className="h-9 w-full" />)}
+            {resumen?.recientes.length === 0 && (
+              <div className="flex flex-col items-start gap-3 py-2">
+                <p className="text-sm text-silver/70">{isAdmin ? "Todavía no hay proyectos registrados." : "Aún no tienes proyectos. Cuéntanos tu idea y te enviaremos un presupuesto."}</p>
+                {!isAdmin && (
+                  <button onClick={() => onNavigate?.("nuevo-proyecto")} className="py-2 px-4 rounded-xl border border-blue-accent/30 text-xs font-ui text-blue-accent hover:bg-blue-accent/10">
+                    Solicitar nuevo proyecto →
+                  </button>
+                )}
               </div>
-            ))}
+            )}
+            {resumen?.recientes.map(({ id, nombre, estado, avance }) => {
+              const pctP = estado === "completado" ? 100 : avance ?? 0;
+              return (
+                <button key={id} onClick={() => onNavigate?.("estatus-proyectos")} className="flex flex-col gap-1.5 text-left group">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-ui text-[#f0f4ff] truncate group-hover:text-cyan transition-colors">{nombre}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-mono text-silver">{pctP}%</span>
+                      <Badge variant={estado === "completado" ? "green" : "default"}>{ESTADO_LABEL[estado] ?? estado}</Badge>
+                    </div>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-navy-mid overflow-hidden">
+                    <motion.div
+                      className={cn("h-full rounded-full bg-gradient-to-r", BARRA[estado] ?? "from-blue-accent to-blue-bright")}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pctP}%` }}
+                      transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </Tile>
 
@@ -269,15 +293,22 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
             <CreditCard className="w-4 h-4 text-cyan" />
             <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Métodos de Pago</p>
           </div>
-          {PAYMENTS.map(({ name, tag, active }) => (
-            <div key={name} className="flex items-center justify-between py-0.5">
-              <div className="flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", active ? "bg-status-green" : "bg-silver/30")} />
-                <span className="text-sm font-ui text-[#f0f4ff]">{name}</span>
-              </div>
-              <span className="text-xs font-mono text-silver/50">{tag}</span>
-            </div>
-          ))}
+          {!metodos ? (
+            <Skeleton className="h-16 w-full" />
+          ) : metodos.length === 0 ? (
+            <p className="text-xs text-silver/60">No hay métodos de pago disponibles por ahora.</p>
+          ) : (
+            metodos.map((m) => (
+              <button key={m.id} onClick={() => onNavigate?.(m.id.replace("_", "-") as PanelId)}
+                className="flex items-center justify-between py-0.5 text-left group">
+                <div className="flex items-center gap-2">
+                  <div className={cn("w-1.5 h-1.5 rounded-full", m.disponible ? "bg-status-green" : "bg-silver/30")} />
+                  <span className="text-sm font-ui text-[#f0f4ff] group-hover:text-cyan transition-colors">{m.nombre}</span>
+                </div>
+                <span className="text-xs font-mono text-silver/50">{m.moneda}</span>
+              </button>
+            ))
+          )}
         </Tile>
 
         {/* Schedule */}
@@ -286,32 +317,24 @@ export default function BentoGrid({ onNavigate }: { onNavigate?: (id: PanelId) =
             <Calendar className="w-4 h-4 text-status-green" />
             <p className="text-xs font-ui font-semibold uppercase tracking-widest text-silver/60">Próxima sesión</p>
           </div>
-          <p className="text-xs text-silver/60">Sin reuniones agendadas</p>
-          <Link
-            href="/#contacto"
+          {resumen?.proximaReunion ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-ui text-[#f0f4ff]">{fmtReunion(resumen.proximaReunion)}</p>
+              <p className="text-xs text-silver/70">
+                {resumen.proximaReunion.modalidad === "presencial" ? "Presencial" : "Virtual"}
+                {" · "}
+                {resumen.proximaReunion.estado === "confirmada" ? "Confirmada" : "Pendiente de confirmación"}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-silver/60">{resumen ? "Sin reuniones agendadas" : "Cargando…"}</p>
+          )}
+          <button
+            onClick={() => onNavigate?.("consultoria")}
             className="mt-auto py-2 px-4 rounded-xl border border-status-green/30 text-xs font-ui text-status-green hover:bg-status-green/10 transition-colors text-center"
           >
             Agendar consultoría →
-          </Link>
-        </Tile>
-
-        {/* Large logo tile — decorative, mirrors screenshot */}
-        <Tile className="lg:col-span-4 p-5 flex flex-col items-center justify-center gap-3 min-h-[180px] relative overflow-hidden">
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: "radial-gradient(circle at center, rgba(0,207,255,0.08) 0%, transparent 70%)" }}
-          />
-          <Image
-            src="/logo.png"
-            alt="Technosoftware"
-            width={80}
-            height={80}
-            className="animate-spin-3d drop-shadow-[0_0_28px_rgba(0,207,255,0.5)] relative z-10"
-          />
-          <div className="text-center relative z-10">
-            <p className="font-ui font-bold text-lg text-[#f0f4ff] tracking-widest">TECHNOSOFTWARE</p>
-            <p className="text-xs font-ui text-silver/50 uppercase tracking-widest">Agencia de Soporte y Desarrollo</p>
-          </div>
+          </button>
         </Tile>
 
       </div>

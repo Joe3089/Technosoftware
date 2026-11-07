@@ -1,4 +1,5 @@
 import { requireRole, json, isEmail, str } from "@/lib/api";
+import { registrarActividad } from "@/lib/actividad";
 
 const TIPOS = ["interesado", "fijo"];
 
@@ -40,5 +41,9 @@ export async function POST(req: Request) {
     .select()
     .single();
   if (error) return json({ error: error.code === "23505" ? "Ese correo ya está registrado" : error.message }, 400);
+  await registrarActividad({
+    userId: auth.session.user.id, accion: "cliente_creado",
+    descripcion: `Registró al cliente «${data.nombre}»`, entidad: "cliente", entidadId: data.id,
+  });
   return json({ cliente: data }, 201);
 }
