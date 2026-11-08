@@ -17,6 +17,7 @@ const ETIQUETA: Record<string, { cols: string; txt: (r: Record<string, string>) 
   presupuestos_gestion: { cols: "id, nombre", txt: (r) => r.nombre },
   finanzas_registros: { cols: "id, categoria", txt: (r) => r.categoria },
   departamentos: { cols: "id, nombre", txt: (r) => r.nombre },
+  documentos_area: { cols: "id, titulo", txt: (r) => r.titulo },
   cargos: { cols: "id, nombre", txt: (r) => r.nombre },
 };
 const AUDITADAS = new Set([...Object.keys(ETIQUETA), "tarea_checklist", "tarea_comentarios", "tarea_colaboradores", "tarea_dependencias",

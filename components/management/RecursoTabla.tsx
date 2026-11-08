@@ -16,12 +16,13 @@ export interface Filtro { clave: string; etiqueta: string; opciones: Opcion[] }
 /** Lista paginada con búsqueda, filtros, orden y formulario de alta/edición (vista tipo Odoo). */
 export function RecursoTabla({
   recurso, titulo, columnas, campos, filtros = [], fijos = {}, puedeCrear, puedeEditar, puedeBorrar, textoNuevo = "Nuevo",
-  nuevoInicial, onAbrir, acciones, size = 25, buscar = true, descripcionBorrar, cabecera, pk = "id",
+  nuevoInicial, onAbrir, acciones, size = 25, buscar = true, descripcionBorrar, cabecera, pk = "id", transformar,
 }: {
   recurso: string; titulo?: string; columnas: Columna[]; campos?: Campo[]; filtros?: Filtro[]; fijos?: Record<string, string>;
   puedeCrear?: boolean; puedeEditar?: boolean | ((f: Fila) => boolean); puedeBorrar?: boolean | ((f: Fila) => boolean);
   textoNuevo?: string; nuevoInicial?: Record<string, unknown>; onAbrir?: (f: Fila) => void; acciones?: (f: Fila, recargar: () => void) => React.ReactNode;
   size?: number; buscar?: boolean; descripcionBorrar?: string; cabecera?: React.ReactNode; pk?: string;
+  transformar?: { entrada?: (f: Fila) => Record<string, unknown>; salida?: (d: Record<string, unknown>, previo?: Fila) => Record<string, unknown> };
 }) {
   const { intentar } = useGestion();
   const [q, setQ] = useState("");
@@ -37,7 +38,8 @@ export function RecursoTabla({
   const { datos, total, cargando, error, recargar } = useLista<Fila>(recurso, params);
 
   const ev = (p: boolean | ((f: Fila) => boolean) | undefined, f: Fila) => (typeof p === "function" ? p(f) : !!p);
-  const guardar = async (d: Record<string, unknown>) => {
+  const guardar = async (crudo: Record<string, unknown>) => {
+    const d = transformar?.salida ? transformar.salida(crudo, editando === "nuevo" ? undefined : editando ?? undefined) : crudo;
     if (editando === "nuevo") await api(`/api/gestion/${recurso}`, { method: "POST", json: { ...nuevoInicial, ...fijos, ...d } });
     else if (editando) await api(`/api/gestion/${recurso}/${encodeURIComponent(String(editando[pk]))}`, { method: "PATCH", json: d });
     setEditando(null);
@@ -103,7 +105,7 @@ export function RecursoTabla({
 
       {campos && (
         <Modal abierto={!!editando} onCerrar={() => setEditando(null)} titulo={editando === "nuevo" ? textoNuevo : "Editar"}>
-          <Formulario campos={campos} inicial={editando === "nuevo" ? nuevoInicial : editando} editando={editando !== "nuevo"}
+          <Formulario campos={campos} inicial={editando === "nuevo" ? nuevoInicial : editando && transformar?.entrada ? transformar.entrada(editando) : editando} editando={editando !== "nuevo"}
             onGuardar={guardar} onCancelar={() => setEditando(null)} />
         </Modal>
       )}

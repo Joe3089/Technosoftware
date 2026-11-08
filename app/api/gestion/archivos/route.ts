@@ -5,7 +5,7 @@ import { mensajeError } from "@/lib/services/recursos";
 import { requireStaff, esUuid } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/server";
 
-const ENTIDADES = ["tarea", "proyecto", "ticket", "oportunidad", "contacto", "factura", "empleado"];
+const ENTIDADES = ["tarea", "proyecto", "ticket", "oportunidad", "contacto", "factura", "empleado", "documento"];
 
 // POST /api/gestion/archivos (multipart: entidad, entidad_id, archivo)
 // El tipo se valida por firma (magic bytes). El registro se inserta con la sesión del usuario,

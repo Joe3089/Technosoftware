@@ -1,5 +1,6 @@
 import { Resend } from "resend";
-import { requireRole, json, str } from "@/lib/api";
+import { json, str } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 import { registrarActividad } from "@/lib/actividad";
 
 const SEGMENTOS = ["interesados", "fijos", "todos"] as const;
@@ -24,7 +25,7 @@ function plantilla(mensaje: string, nombre: string) {
 // body: { asunto, mensaje, segmento: "interesados"|"fijos"|"todos", prueba?: true }
 // En el mensaje, {{nombre}} se reemplaza por el nombre de cada cliente.
 export async function POST(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("crm.correos");
   if ("error" in auth) return auth.error;
   const { supabase, user } = auth.session;
 
@@ -74,7 +75,7 @@ export async function POST(req: Request) {
 
 // GET /api/emails/masivo — historial de campañas (solo admin)
 export async function GET() {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("crm.correos");
   if ("error" in auth) return auth.error;
   const { data, error } = await auth.session.supabase
     .from("campanas_email").select("*").order("created_at", { ascending: false }).limit(50);

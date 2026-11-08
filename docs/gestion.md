@@ -57,6 +57,32 @@ Navegador ──► app/gestion/** (client components)
 | `/dashboard/estadisticas` | KPI por departamento con fórmula, meta, unidad, sentido, fuente, periodicidad y responsable; valor automático, mediciones manuales y tendencia. |
 | `/dashboard/configuracion` | Solo admin: departamentos, cargos, roles y permisos (matriz), catálogos, parámetros, estados y prioridades (referencia) y auditoría. |
 
+## Vistas por rol (migración 014 + `supabase/seed/014_roles.sql`)
+
+| Rol | Equipo | Coordinación |
+|-----|--------|--------------|
+| Administrador General | Todo: ver, editar y modificar | — |
+| Comercialización | CRM (pipeline propio), clientes, contactos, solicitudes de clientes | + pipeline completo, correos masivos, KPI y estadísticas del área, estrategias, estudios de mercado y reportes (Mi área) |
+| Finanzas | Verificación de pagos (la IA concilia al aprobar) | + contabilidad, cuentas, facturas, movimientos de la billetera |
+| Talento | Análisis de candidatos, contenido de valor (lo publica la coordinación) | + entrevistas, actividades de bienestar (visibles para todo el personal al publicarse), fichas y roles |
+| DevOps | Solo su proyecto asignado, su consultor y QA; tareas y soporte técnico | + proyectos contratados y sus contratos, asignar programadores, definición técnica |
+| Consultoría | Proyectos asignados, tareas para programadores, seguimientos, reportes de proyecto, QA y programador, documentación | + project manager: todos los proyectos contratados, asignar consultores, reporte general |
+| Legal | Contratos para las empresas (con archivo) y cumplimiento normativo; ve proyectos y clientes | — |
+
+- **Proyecto contratado:** tiene contrato verificado (flujo de clientes), está en fase Arquitectura o posterior, o está en progreso, revisión o culminado (`app.proyecto_contratado`).
+- **Directorio:** sin `empleados.ver` solo se ve uno mismo, el supervisor y los compañeros de equipo del proyecto. Un programador de DevOps solo ve al consultor, a QA y a los coordinadores (`app.puede_ver_empleado`).
+- **KPI:** cada área ve y gestiona solo los suyos.
+- **Mi área** (`/dashboard/area`, tabla `documentos_area`, tipos en `lib/services/areas.ts`):
+  - aprobar, publicar o firmar es decisión de la coordinación (trigger);
+  - los documentos de proyecto los ve su equipo;
+  - el bienestar y el contenido publicados los ve todo el personal.
+- **Administración movida desde el área de clientes:**
+  - Clientes, Solicitudes y Correos masivos pasan a **CRM** (`/dashboard/crm?tab=…`).
+  - Pagos pasa a **Finanzas** (`/dashboard/contabilidad?tab=pagos`).
+  - Sus APIs piden permiso por área (`requireAcceso`): `clientes.*`, `solicitudes.gestionar`, `crm.correos`, `pagos.verificar`.
+  - Los enlaces antiguos `/dashboard?panel=admin-*` redirigen.
+- **Pruebas (2026-11-08):** E2E de las vistas por rol, 36/36, con 13 empleados temporales eliminados al terminar.
+
 ## Base de datos (`supabase/migrations/010_gestion_empresarial.sql` y `011_roles_sistema.sql`)
 
 Es aditiva e idempotente: puede volver a ejecutarse sin efectos.

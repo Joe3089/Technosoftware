@@ -1,4 +1,5 @@
-import { requireRole, json } from "@/lib/api";
+import { json } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 import { registrarActividad } from "@/lib/actividad";
 
 const REUNION = "reunion:reuniones(id, estado, fecha_hora, zona_horaria, modalidad, motivo, telefono, canales, email_personal, email_corporativo, empresa, direccion, lat, lng, ubicacion_fuente, observaciones)";
@@ -12,7 +13,7 @@ const ESTADOS: Record<string, string[]> = {
 
 // GET /api/admin/solicitudes — consultorías y solicitudes de proyecto para seguimiento (solo admin)
 export async function GET() {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("solicitudes.gestionar");
   if ("error" in auth) return auth.error;
   const s = auth.session.supabase;
   const [con, sol] = await Promise.all([
@@ -27,7 +28,7 @@ export async function GET() {
 
 // PATCH /api/admin/solicitudes { tabla, id, estado } — solo admin
 export async function PATCH(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("solicitudes.gestionar");
   if ("error" in auth) return auth.error;
   const { tabla, id, estado } = await req.json().catch(() => ({}));
   if (!(tabla in ESTADOS) || typeof id !== "string" || !ESTADOS[tabla].includes(estado))

@@ -10,7 +10,7 @@ export const RECURSOS_LOCALES = [
   "departamentos", "cargos", "empleados", "catalogos", "parametros", "proyectos", "proyecto_equipo", "proyecto_hitos", "proyecto_items",
   "proyecto_contactos", "contactos", "clientes", "tareas", "tarea_checklist", "tarea_comentarios", "tarea_colaboradores", "tarea_dependencias",
   "oportunidades", "crm_interacciones", "facturas", "pagos_factura", "finanzas_registros", "presupuestos_gestion", "tickets", "ticket_comentarios",
-  "kpis", "kpi_mediciones", "archivos_gestion",
+  "kpis", "kpi_mediciones", "archivos_gestion", "documentos_area",
 ];
 const ESPECIALES = ["/api/gestion/contexto", "/api/gestion/resumen", "/api/gestion/tablero?semanas=10", "/api/gestion/notificaciones", "/api/gestion/estadisticas"];
 const PAGINAS = ["inicio", "planificacion", "proyectos", "contactos", "clientes", "crm", "empleados", "contabilidad", "estadisticas", "soporte", "configuracion"];

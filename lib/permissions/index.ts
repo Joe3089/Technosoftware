@@ -33,3 +33,10 @@ export async function requireStaff(opts: { permiso?: string; admin?: boolean } =
 
 export const esUuid = (v: unknown): v is string =>
   typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
+/** Sustituto de requireRole("admin") para flujos delegados a un área: admin o personal con el permiso. */
+export async function requireAcceso(permiso: string) {
+  const r = await requireStaff({ permiso });
+  if ("error" in r) return { error: r.error } as const;
+  return { session: r.session, ctx: r.ctx } as const;
+}

@@ -6,9 +6,9 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, User, FolderOpen, MessageSquare, CreditCard,
-  LogOut, ChevronRight, Menu, Inbox, Landmark, Wallet, History, BarChart2,
+  LogOut, ChevronRight, Menu, Landmark, Wallet, History, BarChart2,
   CheckSquare, Calendar, PlusCircle, Smartphone, DollarSign,
-  FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail, FileSignature, Star } from "lucide-react";
+  FileText, BadgeDollarSign, Lock, Users, FileSignature, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SelectorIdioma, { Reloj } from "@/components/i18n/SelectorIdioma";
 import EnlaceGestion from "@/components/management/EnlaceGestion";
@@ -22,8 +22,7 @@ export type PanelId =
   | "datos-personales" | "historial" | "estado-cuenta"
   | "historial-proyectos" | "estatus-proyectos" | "proyectos-culminados" | "contratacion" | "resenas"
   | "consultoria" | "nuevo-proyecto"
-  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal" | "mercantil-pa"
-  | "admin-clientes" | "admin-correos" | "admin-solicitudes" | "admin-pagos";
+  | "pago-movil" | "zelle" | "airtm" | "binance" | "paypal" | "mercantil-pa";
 
 interface SubItem { id: PanelId; label: string; icon: React.ElementType }
 interface Section { id: string; label: string; icon: React.ElementType; subs: SubItem[] }
@@ -68,15 +67,6 @@ const SECTIONS: Section[] = [
 ];
 
 /* Only visible to the admin role */
-const ADMIN_SECTION: Section = {
-  id: "admin", label: "Administración", icon: ShieldCheck,
-  subs: [
-    { id: "admin-clientes", label: "Clientes",        icon: Users },
-    { id: "admin-correos",  label: "Correos Masivos", icon: Mail  },
-    { id: "admin-solicitudes", label: "Solicitudes",  icon: Inbox },
-    { id: "admin-pagos",       label: "Pagos",        icon: Wallet },
-  ],
-};
 
 interface Props {
   children: React.ReactNode;
@@ -95,13 +85,12 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
   const { user, isAdmin, logout, loading: authLoading } = useAuth();
   const metodos = useMetodosPago(!!user);
   const sections = useMemo(() => {
-    if (isAdmin) return [...SECTIONS, ADMIN_SECTION];
     // Users only see the payment methods that are active and configured (hidden while loading)
     const ids = new Set(metodos?.map((m) => m.id) ?? []);
     return SECTIONS
       .map((s) => (s.id === "pagos" ? { ...s, subs: s.subs.filter((x) => ids.has(x.id.replace("-", "_") as Metodo["id"])) } : s))
       .filter((s) => s.subs.length > 0);
-  }, [isAdmin, metodos]);
+  }, [metodos]);
   const { data, loading: perfilLoading } = usePersonalData();
   // Only regular users must complete their profile; admins are never gated
   const profileOk = isAdmin || isProfileComplete(data);
@@ -127,7 +116,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
   // Deep links (?panel=) go through the same rules as the menu: role and profile locks
   useEffect(() => {
     if (authLoading || perfilLoading) return;
-    if ((activePanel.startsWith("admin-") && !isAdmin) || (!profileOk && LOCKED_PANELS.includes(activePanel))) onPanelChange("home");
+    if ((!profileOk && LOCKED_PANELS.includes(activePanel))) onPanelChange("home");
   }, [activePanel, authLoading, perfilLoading, isAdmin, profileOk, onPanelChange]);
 
   function navigate(id: PanelId) {
@@ -230,7 +219,6 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
               return (
                 <div key={section.id} className="mb-0.5">
-                  {section.id === "admin" && <EnlaceGestion variante="menu" />}
                   <p className="px-4 pt-3 pb-1 text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">
                     {section.label}
                   </p>
@@ -289,6 +277,8 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
                 </div>
               );
             })}
+            {/* La administración (clientes, correos, solicitudes y pagos) vive ahora en la gestión interna */}
+            <EnlaceGestion variante="menu" />
           </nav>
 
           {/* Logout */}

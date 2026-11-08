@@ -45,9 +45,9 @@ There are no tests.
 | `webhooks/paypal` | PayPal (signature verified) | Re-queries the order and credits idempotently via `acreditar_recarga()` |
 | `consultorias`, `solicitudes-proyecto` | user | Requests (+ optional linked meeting in `reuniones`); validation in `lib/solicitudes.ts`, insert + rollback in `lib/solicitudes-server.ts` |
 | `adjuntos` (POST), `adjuntos/[id]` (GET) | owner / admin | Attachments in private `adjuntos` bucket (signature-checked, 4 MB, max 5); download via signed URL |
-| `admin/solicitudes` | admin | Review requests/meetings and change their status |
+| `admin/solicitudes` | `solicitudes.gestionar` (Comercialización) | Review requests/meetings and change their status |
 | `metodos-pago`, `metodos-pago/[id]` | user (available only) / admin (configure) | Unified gateway catalog (`lib/pagos.ts`): PayPal = API; Zelle, Binance Pay, AirTM, Pago Móvil, Mercantil Panamá = reported payment + admin verification |
-| `admin/recargas`, `admin/recargas/[id]` | admin | Verify reported payments: approve (credits via `acreditar_recarga()`, idempotent) or reject; view receipt |
+| `admin/recargas`, `admin/recargas/[id]` | `pagos.verificar` (Finanzas) | Verify reported payments: approve (credits via `acreditar_recarga()`, idempotent) or reject; view receipt |
 | `proyectos/[id]/contratacion` (GET) | owner / admin | Budget, contract, final meeting and survey state of a project |
 | `proyectos/[id]/presupuesto` | admin (PUT) / owner (POST aprobar·rechazar) | Budget; an approved budget can't be replaced and unlocks the contract |
 | `proyectos/[id]/contrato` | admin (issue PDF, verificar·rechazar_firma) / owner (aprobar → descargar → upload signed) | Contract flow in `contratos`; files in private `adjuntos` bucket; verifying it marks the client `fijo` |
@@ -84,7 +84,7 @@ Full docs: `docs/gestion.md`. Key rules:
 - `lib/supabase/client.ts` (browser) and `lib/supabase/server.ts` (server, includes `getSessionProfile`).
 - `middleware.ts` refreshes the session cookie and redirects unauthenticated `/dashboard` requests to `/login`. It is a no-op when the Supabase env vars are missing.
 - `hooks/useAuth.ts` is the client hook (login/register/logout, Spanish error messages).
-- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/migrations/schema.sql` plus `002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql`, `011_roles_sistema.sql`, `012_historial_areas.sql`, `013_tiempo_real.sql` (run in order), all in `supabase/migrations/`; then `supabase/seed/011_roles.sql`.
+- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/migrations/schema.sql` plus `002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql`, `011_roles_sistema.sql`, `012_historial_areas.sql`, `013_tiempo_real.sql`, `014_vistas_por_rol.sql` (run in order), all in `supabase/migrations/`; then `supabase/seed/014_roles.sql` (supersedes 011).
 - Dashboard: `components/dashboard/DashboardLayout.tsx`; user panels are in `panels/`, admin-only panels (`ClientesPanel`, `CorreosPanel`) are in `panels/admin/`.
 
 ### Styling

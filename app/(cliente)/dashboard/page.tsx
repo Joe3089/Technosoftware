@@ -13,11 +13,7 @@ import ContratacionPanel from "@/components/dashboard/panels/proyectos/Contratac
 import ResenasPanel from "@/components/dashboard/panels/ResenasPanel";
 import ConsultoriaPanel from "@/components/dashboard/panels/ConsultoriaPanel";
 import NuevoProyectoPanel from "@/components/dashboard/panels/NuevoProyectoPanel";
-import SolicitudesPanel from "@/components/dashboard/panels/admin/SolicitudesPanel";
-import PagosAdminPanel from "@/components/dashboard/panels/admin/PagosAdminPanel";
 import PagosPanel from "@/components/dashboard/panels/PagosPanel";
-import ClientesPanel from "@/components/dashboard/panels/admin/ClientesPanel";
-import CorreosPanel from "@/components/dashboard/panels/admin/CorreosPanel";
 /* Panels that map to Proyectos section subs */
 /* Panels that map to Contacto section subs */
 /* Panels that map to Pagos section subs */
@@ -38,10 +34,6 @@ function ActivePanel({ id, onNavigate }: { id: PanelId; onNavigate: (p: PanelId)
   if (id === "consultoria")          return <ConsultoriaPanel />;
   if (id === "nuevo-proyecto")       return <NuevoProyectoPanel />;
   if (id in PAGOS_PANELS)           return <PagosPanel metodo={PAGOS_PANELS[id]!} />;
-  if (id === "admin-clientes")      return <ClientesPanel />;
-  if (id === "admin-correos")       return <CorreosPanel />;
-  if (id === "admin-solicitudes")   return <SolicitudesPanel />;
-  if (id === "admin-pagos")         return <PagosAdminPanel />;
   return <BentoGrid onNavigate={onNavigate} />;
 }
 
@@ -53,6 +45,12 @@ export default function DashboardPage() {
     const sp = new URLSearchParams(window.location.search);
     if (sp.has("recarga")) setActivePanel("estado-cuenta");
     // Deep link to a panel, e.g. /dashboard?panel=contratacion (the layout still enforces locks and roles)
+    else if (sp.get("panel")?.startsWith("admin-")) {
+      // Enlaces antiguos de administración → gestión interna
+      const destino: Record<string, string> = { "admin-clientes": "/dashboard/crm?tab=clientes", "admin-correos": "/dashboard/crm?tab=correos",
+        "admin-solicitudes": "/dashboard/crm?tab=solicitudes", "admin-pagos": "/dashboard/contabilidad?tab=pagos" };
+      window.location.replace(destino[sp.get("panel")!] ?? "/dashboard/inicio");
+    }
     else if (sp.get("panel")) setActivePanel(sp.get("panel") as PanelId);
   }, []);
 

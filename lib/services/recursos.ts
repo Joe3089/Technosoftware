@@ -107,7 +107,7 @@ export const RECURSOS: Record<string, Recurso> = {
     select: `*, ${depto("empleados_departamento_id_fkey")}, cargo:cargos!empleados_cargo_id_fkey(id,nombre), supervisor:supervisor_id(id,nombre,apellido)`,
     buscar: ["nombre", "apellido", "email_corporativo"], filtros: ["departamento_id", "estado", "rol_sistema", "es_coordinador", "cargo_id"],
     orden: ["nombre", true], ordenables: ["nombre", "fecha_ingreso", "estado", "created_at"],
-    crear: empleado, editar: empleado.partial(), permiso: "empleados.ver",
+    crear: empleado, editar: empleado.partial(), // directorio limitado por RLS (app.puede_ver_empleado)
   },
   empleado_datos: {
     tabla: "empleado_datos", select: "*", pk: "empleado_id", orden: ["empleado_id", true],
@@ -179,12 +179,12 @@ export const RECURSOS: Record<string, Recurso> = {
     crear: contacto, editar: contacto.partial(), borrar: "soft", permiso: "contactos.ver",
   },
   clientes: {
-    tabla: "clientes", select: "*", buscar: ["nombre", "email", "empresa"], filtros: ["tipo"],
+    tabla: "clientes", select: "*", buscar: ["nombre", "email", "empresa"], filtros: ["tipo", "suscrito"],
     orden: ["created_at", false], ordenables: ["nombre", "empresa", "created_at"], permiso: "clientes.ver",
     crear: z.object({ nombre: texto(120), email: z.email("Correo inválido").max(254), telefono: textoOpc(40),
-      empresa: textoOpc(120), tipo: z.enum(["interesado", "fijo"]).optional(), servicio: textoOpc(120), notas: textoOpc(4000) }),
+      empresa: textoOpc(120), tipo: z.enum(["interesado", "fijo"]).optional(), servicio: textoOpc(120), notas: textoOpc(4000), suscrito: z.boolean().optional() }),
     editar: z.object({ nombre: texto(120), telefono: textoOpc(40), empresa: textoOpc(120),
-      tipo: z.enum(["interesado", "fijo"]), servicio: textoOpc(120), notas: textoOpc(4000) }).partial(),
+      tipo: z.enum(["interesado", "fijo"]), servicio: textoOpc(120), notas: textoOpc(4000), suscrito: z.boolean() }).partial(),
   },
   tareas: {
     tabla: "tareas",
@@ -283,6 +283,18 @@ export const RECURSOS: Record<string, Recurso> = {
     tabla: "kpi_mediciones", select: "*", filtros: ["kpi_id"], orden: ["periodo", false], autor: "registrado_por",
     borrar: "hard", permiso: "kpi.ver",
     crear: z.object({ kpi_id: id, periodo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), valor: z.coerce.number(), nota: textoOpc(500) }),
+  },
+  documentos_area: {
+    tabla: "documentos_area",
+    select: `*, proyecto:proyectos!documentos_area_proyecto_id_fkey(id,codigo,nombre), cliente:clientes!documentos_area_cliente_id_fkey(id,nombre),
+      ${emp("responsable", "documentos_area_responsable_id_fkey")}, ${emp("autor", "documentos_area_autor_id_fkey")}`,
+    buscar: ["titulo"], filtros: ["area", "tipo", "estado", "proyecto_id", "responsable_id", "cliente_id"],
+    orden: ["created_at", false], ordenables: ["titulo", "fecha", "estado", "created_at"], autor: "autor_id", borrar: "hard",
+    crear: z.object({ area: z.enum(["comercializacion", "finanzas", "talento", "devops", "consultoria", "legal"]), tipo: texto(40),
+      titulo: texto(200), contenido: textoOpc(20000), estado: texto(20).optional(), fecha: fechaHora, proyecto_id: ref, cliente_id: ref,
+      responsable_id: ref, datos: z.record(z.string(), z.union([z.string().max(2000), z.number()])).optional() }),
+    editar: z.object({ titulo: texto(200), contenido: textoOpc(20000), estado: texto(20), fecha: fechaHora, proyecto_id: ref, cliente_id: ref,
+      responsable_id: ref, datos: z.record(z.string(), z.union([z.string().max(2000), z.number()])) }).partial(),
   },
   archivos_gestion: {
     tabla: "archivos_gestion", select: `id, entidad, entidad_id, nombre, mime, tamano, created_at, ${emp("autor", "archivos_gestion_subido_por_fkey")}`,

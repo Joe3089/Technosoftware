@@ -1,11 +1,12 @@
-import { requireRole, json, isEmail, str } from "@/lib/api";
+import { json, isEmail, str } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 import { registrarActividad } from "@/lib/actividad";
 
 const TIPOS = ["interesado", "fijo"];
 
 // GET /api/clientes?tipo=interesado|fijo&q=texto — cualquier usuario autenticado
 export async function GET(req: Request) {
-  const auth = await requireRole("user");
+  const auth = await requireAcceso("clientes.ver");
   if ("error" in auth) return auth.error;
   const { searchParams } = new URL(req.url);
   const tipo = searchParams.get("tipo");
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
 
 // POST /api/clientes — solo admin
 export async function POST(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("clientes.gestionar");
   if ("error" in auth) return auth.error;
   const body = await req.json().catch(() => ({}));
   if (!str(body.nombre, 120) || !isEmail(body.email)) return json({ error: "Nombre y correo válido son obligatorios" }, 400);

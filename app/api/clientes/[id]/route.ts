@@ -1,11 +1,12 @@
 import { requireRole, json, isEmail, str } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 import { registrarActividad } from "@/lib/actividad";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 // PATCH /api/clientes/:id — solo admin
 export async function PATCH(req: Request, { params }: Ctx) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("clientes.gestionar");
   if ("error" in auth) return auth.error;
   const { id } = await params;
   const body = await req.json().catch(() => ({}));

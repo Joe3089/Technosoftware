@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PagosAdminPanel from "@/components/dashboard/panels/admin/PagosAdminPanel";
 import Link from "next/link";
 import { Ban, HandCoins, Info, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { etqCliente } from "@/components/management/proyectos/campos";
 import { ESTADOS_FACTURA, MONEDAS, color, etiqueta } from "@/lib/services/constantes";
 import { HistorialModulo } from "@/components/shared/Historial";
 
-const PESTANAS = { resumen: "Resumen", facturas: "Facturas", registros: "Ingresos y gastos", presupuestos: "Presupuestos", billetera: "Billetera de clientes" };
+const PESTANAS = { pagos: "Verificación de pagos", resumen: "Resumen", facturas: "Facturas", registros: "Ingresos y gastos", presupuestos: "Presupuestos", billetera: "Billetera de clientes" };
 const etqProy = (f: Record<string, unknown>) => `${f.codigo} · ${f.nombre}`;
 const etqProv = (f: Record<string, unknown>) => `${f.empresa ?? `${f.nombre} ${f.apellido ?? ""}`}`;
 
@@ -35,8 +36,14 @@ const CAMPOS_FACTURA: Campo[] = [
 
 export default function PaginaFinanzas() {
   const { puede } = useGestion();
-  const [pestana, setPestana] = useState<keyof typeof PESTANAS>("resumen");
   const gestiona = puede("finanzas.gestionar");
+  // El equipo de Finanzas verifica pagos (la IA concilia); cuentas y movimientos son de la coordinación
+  const visibles = (Object.keys(PESTANAS) as (keyof typeof PESTANAS)[]).filter((k) => (k === "pagos" ? puede("pagos.verificar") : puede("finanzas.ver")));
+  const [pestana, setPestana] = useState<keyof typeof PESTANAS>("resumen");
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab") as keyof typeof PESTANAS | null;
+    if (t && visibles.includes(t)) setPestana(t); else if (visibles.length && !visibles.includes(pestana)) setPestana(visibles[0]);
+  }, [visibles.length]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="space-y-4">
       <div>
@@ -47,12 +54,13 @@ export default function PaginaFinanzas() {
         <p className="text-xs text-silver flex items-center gap-1.5 mt-1"><Info className="w-3.5 h-3.5" />Contabilidad de gestión. No sustituye la contabilidad fiscal ni aplica reglas tributarias. Los proveedores se registran en <Link href="/dashboard/contactos" className="text-blue-accent hover:underline">Contactos</Link> (tipo proveedor).</p>
       </div>
       <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-glass-bd">
-        {(Object.keys(PESTANAS) as (keyof typeof PESTANAS)[]).map((k) => (
+        {visibles.map((k) => (
           <button key={k} role="tab" aria-selected={pestana === k} onClick={() => setPestana(k)}
             className={cn("px-3 py-2 text-xs font-ui whitespace-nowrap border-b-2 -mb-px", pestana === k ? "border-cyan text-white" : "border-transparent text-silver hover:text-white")}>{PESTANAS[k]}</button>
         ))}
       </div>
-      {pestana === "resumen" && <Resumen />}
+      {pestana === "pagos" && visibles.includes("pagos") && <PagosAdminPanel />}
+      {!visibles.includes(pestana) ? null : pestana === "resumen" && <Resumen />}
       {pestana === "facturas" && <Facturas gestiona={gestiona} />}
       {pestana === "registros" && <Registros gestiona={gestiona} />}
       {pestana === "presupuestos" && (

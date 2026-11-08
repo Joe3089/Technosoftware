@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireRole, json, str } from "@/lib/api";
+import { json, str } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/server";
 import { registrarActividad } from "@/lib/actividad";
 import { after } from "next/server";
@@ -11,7 +12,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 // GET /api/admin/recargas/:id — abre el comprobante (URL firmada de 5 min)
 export async function GET(_req: Request, { params }: Ctx) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("pagos.verificar");
   if ("error" in auth) return auth.error;
   const { id } = await params;
   const { data } = await auth.session.supabase.from("recargas").select("comprobante_path").eq("id", id).maybeSingle();
@@ -23,7 +24,7 @@ export async function GET(_req: Request, { params }: Ctx) {
 // POST /api/admin/recargas/:id { accion: "aprobar" | "rechazar", motivo? }
 // Aprobar acredita el saldo de forma atómica e idempotente (acreditar_recarga).
 export async function POST(req: Request, { params }: Ctx) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("pagos.verificar");
   if ("error" in auth) return auth.error;
   const { id } = await params;
   const { accion, motivo } = await req.json().catch(() => ({}));

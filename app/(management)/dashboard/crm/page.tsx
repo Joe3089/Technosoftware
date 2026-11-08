@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ClientesCRM } from "@/components/management/crm/Clientes";
+import SolicitudesPanel from "@/components/dashboard/panels/admin/SolicitudesPanel";
+import CorreosPanel from "@/components/dashboard/panels/admin/CorreosPanel";
 import Link from "next/link";
 import { BellRing, FolderPlus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,13 +40,24 @@ const CAMPOS: Campo[] = [
 
 export default function PaginaCRM() {
   const { puede, sesion, avisar } = useGestion();
-  const [vista, setVista] = useState<"pipeline" | "recordatorios" | "reportes">("pipeline");
+  type Vista = "pipeline" | "recordatorios" | "reportes" | "clientes" | "solicitudes" | "correos";
+  const crm = puede("crm.ver") || puede("crm.gestionar");
+  const PESTANAS: [Vista, string, boolean][] = [["pipeline", "Pipeline", crm], ["clientes", "Clientes", puede("clientes.ver")],
+    ["solicitudes", "Solicitudes", puede("solicitudes.gestionar")], ["correos", "Correos masivos", puede("crm.correos")],
+    ["recordatorios", "Recordatorios", crm], ["reportes", "Reportes", crm]];
+  const visibles = PESTANAS.filter(([, , ok]) => ok);
+  const [vista, setVista] = useState<Vista>("pipeline");
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab") as Vista | null;
+    const primera = visibles[0]?.[0];
+    if (t && visibles.some(([k]) => k === t)) setVista(t); else if (primera && !visibles.some(([k]) => k === vista)) setVista(primera);
+  }, [visibles.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const [nueva, setNueva] = useState<Record<string, unknown> | null>(null);
   const [abierta, setAbierta] = useState<Op | null>(null);
   const [mias, setMias] = useState(false);
   const params: Record<string, string | number> = { size: 200 };
   if (mias && sesion?.empleado_id) params["f.responsable_id"] = sesion.empleado_id;
-  const { datos, cargando, error, recargar, setDatos } = useLista<Op>("oportunidades", params);
+  const { datos, cargando, error, recargar, setDatos } = useLista<Op>(crm ? "oportunidades" : null, params);
 
   const mover = useCallback(async (id: string, cambios: Partial<Op>) => {
     let previo: Op | undefined;
@@ -61,24 +75,27 @@ export default function PaginaCRM() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="font-ui font-bold text-xl mr-auto">CRM</h1>
-        <HistorialModulo titulo="CRM" entidades={["oportunidades", "crm_interacciones"]} />
-        <div role="tablist" className="inline-flex rounded-lg border border-glass-bd p-0.5">
-          {(["pipeline", "recordatorios", "reportes"] as const).map((v) => (
+        <HistorialModulo titulo="CRM" entidades={["oportunidades", "crm_interacciones", "clientes"]} />
+        <div role="tablist" className="inline-flex flex-wrap rounded-lg border border-glass-bd p-0.5">
+          {visibles.map(([v, t]) => (
             <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}
-              className={cn("px-3 py-1.5 text-xs rounded-md capitalize", vista === v ? "bg-blue-accent/20 text-white" : "text-silver")}>{v}</button>
+              className={cn("px-3 py-1.5 text-xs rounded-md", vista === v ? "bg-blue-accent/20 text-white" : "text-silver")}>{t}</button>
           ))}
         </div>
-        {sesion?.empleado_id && <Button size="sm" variant={mias ? "default" : "outline"} onClick={() => setMias((m) => !m)}>Mías</Button>}
-        {puede("crm.gestionar") && <Button size="sm" onClick={() => setNueva({ etapa: "nuevo", moneda: "USD", probabilidad: 10, responsable_id: sesion?.empleado_id })}><Plus className="w-4 h-4" />Nueva oportunidad</Button>}
+        {crm && ["pipeline", "recordatorios", "reportes"].includes(vista) && sesion?.empleado_id && <Button size="sm" variant={mias ? "default" : "outline"} onClick={() => setMias((m) => !m)}>Mías</Button>}
+        {puede("crm.gestionar") && vista === "pipeline" && <Button size="sm" onClick={() => setNueva({ etapa: "nuevo", moneda: "USD", probabilidad: 10, responsable_id: sesion?.empleado_id })}><Plus className="w-4 h-4" />Nueva oportunidad</Button>}
       </div>
 
-      {error ? <ErrorCaja texto={error} /> : cargando && !datos.length ? <Cargando /> : (
+      {vista === "clientes" && <ClientesCRM />}
+      {vista === "solicitudes" && <SolicitudesPanel />}
+      {vista === "correos" && <CorreosPanel />}
+      {crm && ["pipeline", "recordatorios", "reportes"].includes(vista) && (error ? <ErrorCaja texto={error} /> : cargando && !datos.length ? <Cargando /> : (
         <>
           {vista === "pipeline" && <Pipeline ops={datos} mover={mover} abrir={setAbierta} />}
           {vista === "recordatorios" && <Recordatorios />}
           {vista === "reportes" && <Reportes ops={datos} />}
         </>
-      )}
+      ))}
 
       <Modal abierto={!!nueva} onCerrar={() => setNueva(null)} titulo="Nueva oportunidad">
         <Formulario campos={CAMPOS} inicial={nueva} textoGuardar="Crear" onCancelar={() => setNueva(null)}

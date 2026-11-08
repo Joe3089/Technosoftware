@@ -1,8 +1,9 @@
-import { requireRole, json } from "@/lib/api";
+import { json } from "@/lib/api";
+import { requireAcceso } from "@/lib/permissions";
 
 // GET /api/admin/recargas?estado=pendiente — pagos manuales reportados (solo admin)
 export async function GET(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireAcceso("pagos.verificar");
   if ("error" in auth) return auth.error;
   const estado = new URL(req.url).searchParams.get("estado") ?? "pendiente";
   let q = auth.session.supabase.from("recargas")

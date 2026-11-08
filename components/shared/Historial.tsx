@@ -16,7 +16,7 @@ const TABLA: Record<string, string> = {
   empleado_evaluaciones: "Evaluación", empleado_datos: "Datos personales", facturas: "Factura", pagos_factura: "Pago", finanzas_registros: "Ingreso/gasto",
   presupuestos_gestion: "Presupuesto", movimientos: "Movimiento de billetera", tickets: "Ticket", ticket_comentarios: "Comentario de ticket",
   kpis: "KPI", kpi_mediciones: "Medición", archivos_gestion: "Archivo", departamentos: "Departamento", cargos: "Cargo",
-  asignaciones_permiso: "Permiso", catalogos: "Catálogo", parametros: "Parámetro", profiles: "Cuenta",
+  asignaciones_permiso: "Permiso", documentos_area: "Documento", catalogos: "Catálogo", parametros: "Parámetro", profiles: "Cuenta",
 };
 const CAMPO: Record<string, string> = {
   estado: "Estado", prioridad: "Prioridad", etapa: "Etapa", titulo: "Título", responsable_id: "Responsable", departamento_id: "Departamento",
