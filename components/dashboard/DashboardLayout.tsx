@@ -171,7 +171,6 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 min-w-0">
           <Reloj className="hidden xl:inline-flex" />
-          <EnlaceGestion />
           <SelectorIdioma />
           {user && (
             <div className="flex items-center gap-2 sm:px-3 sm:py-1.5 rounded-full sm:border border-glass-bd min-w-0 max-sm:!bg-transparent"
@@ -231,6 +230,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
               return (
                 <div key={section.id} className="mb-0.5">
+                  {section.id === "admin" && <EnlaceGestion variante="menu" />}
                   <p className="px-4 pt-3 pb-1 text-xs font-ui font-semibold uppercase tracking-widest text-silver/50">
                     {section.label}
                   </p>

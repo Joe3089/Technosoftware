@@ -12,6 +12,7 @@ import { Cargando, Chip, Confirmar, ErrorCaja, Etiqueta, Indicador, Modal, Tarje
 import { etqDepto } from "@/components/planning/comun";
 import { etqCliente } from "@/components/management/proyectos/campos";
 import { ESTADOS_FACTURA, MONEDAS, color, etiqueta } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 const PESTANAS = { resumen: "Resumen", facturas: "Facturas", registros: "Ingresos y gastos", presupuestos: "Presupuestos", billetera: "Billetera de clientes" };
 const etqProy = (f: Record<string, unknown>) => `${f.codigo} · ${f.nombre}`;
@@ -39,7 +40,10 @@ export default function PaginaFinanzas() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-ui font-bold text-xl">Contabilidad y finanzas</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="font-ui font-bold text-xl">Contabilidad y finanzas</h1>
+          <HistorialModulo titulo="Contabilidad y finanzas" entidades={["facturas", "pagos_factura", "finanzas_registros", "presupuestos_gestion", "movimientos"]} />
+        </div>
         <p className="text-xs text-silver flex items-center gap-1.5 mt-1"><Info className="w-3.5 h-3.5" />Contabilidad de gestión. No sustituye la contabilidad fiscal ni aplica reglas tributarias. Los proveedores se registran en <Link href="/dashboard/contactos" className="text-blue-accent hover:underline">Contactos</Link> (tipo proveedor).</p>
       </div>
       <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-glass-bd">

@@ -7,7 +7,7 @@ import { api, useGestion, useLista } from "@/components/management/contexto";
 import { Formulario, type Campo } from "@/components/management/Formulario";
 import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import { Adjuntos } from "@/components/shared/Adjuntos";
-import { Historial } from "@/components/shared/Historial";
+import { Historial, HistorialModulo } from "@/components/shared/Historial";
 import { Cargando, Chip, Indicador, Modal, campoCls, fmtFechaHora } from "@/components/management/ui";
 import { etqDepto, etqEmpleado } from "@/components/planning/comun";
 import { etqCliente } from "@/components/management/proyectos/campos";
@@ -45,7 +45,10 @@ function Soporte() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Soporte técnico</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Soporte técnico</h1>
+        <HistorialModulo titulo="Soporte técnico" entidades={["tickets", "ticket_comentarios"]} />
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <Indicador titulo="Tickets abiertos" valor={abiertos.total} />
         <Indicador titulo="Urgentes sin resolver" valor={urgentes.total} color="#ff5370" />

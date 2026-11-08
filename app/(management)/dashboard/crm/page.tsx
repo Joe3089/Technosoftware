@@ -11,6 +11,7 @@ import { Cargando, Chip, ErrorCaja, Indicador, Modal, Tarjeta, Vacio, campoCls, 
 import { etqEmpleado } from "@/components/planning/comun";
 import { etqCliente } from "@/components/management/proyectos/campos";
 import { ETAPAS_CRM, MONEDAS, TIPOS_INTERACCION, color, etiqueta, nombreEmpleado } from "@/lib/services/constantes";
+import { Historial, HistorialModulo } from "@/components/shared/Historial";
 
 type Op = {
   id: string; titulo: string; etapa: string; valor: number; moneda: string; probabilidad: number; fuente: string | null; orden: number;
@@ -60,6 +61,7 @@ export default function PaginaCRM() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="font-ui font-bold text-xl mr-auto">CRM</h1>
+        <HistorialModulo titulo="CRM" entidades={["oportunidades", "crm_interacciones"]} />
         <div role="tablist" className="inline-flex rounded-lg border border-glass-bd p-0.5">
           {(["pipeline", "recordatorios", "reportes"] as const).map((v) => (
             <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}
@@ -184,6 +186,7 @@ function DetalleOportunidad({ op, onCerrar, onCambio }: { op: Op; onCerrar: () =
             {!inter.length && <li className="text-xs text-silver/60">Sin interacciones registradas.</li>}
           </ul>
         </div>
+        <div className="border-t border-glass-bd pt-4 space-y-2"><h3 className="text-sm font-ui font-semibold">Historial</h3><Historial entidad="oportunidades" entidadId={op.id} /></div>
       </div>
     </Modal>
   );

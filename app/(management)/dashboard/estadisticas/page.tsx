@@ -9,6 +9,7 @@ import { Formulario, type Campo } from "@/components/management/Formulario";
 import { Cargando, ErrorCaja, Etiqueta, Modal, Tarjeta, campoCls, fmtFecha, hoy } from "@/components/management/ui";
 import { etqDepto, etqEmpleado } from "@/components/planning/comun";
 import { PERIODICIDADES, etiqueta, nombreEmpleado } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 type Kpi = {
   id: string; clave: string | null; nombre: string; formula: string; meta: number | null; unidad: string; sentido: "mayor" | "menor";
@@ -58,6 +59,7 @@ export default function PaginaKpi() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-2">
         <h1 className="font-ui font-bold text-xl mr-auto">Estadísticas y KPI</h1>
+        <HistorialModulo titulo="Estadísticas y KPI" entidades={["kpis", "kpi_mediciones"]} />
         <Etiqueta texto="Desde"><input type="date" className={campoCls} value={desde} onChange={(e) => setDesde(e.target.value)} /></Etiqueta>
         <Etiqueta texto="Hasta"><input type="date" className={campoCls} value={hasta} onChange={(e) => setHasta(e.target.value)} /></Etiqueta>
         {gestiona && <Button size="sm" onClick={() => setEditar("nuevo")}><Plus className="w-4 h-4" />Nuevo KPI</Button>}

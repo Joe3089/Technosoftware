@@ -7,6 +7,7 @@ import { api, useGestion } from "@/components/management/contexto";
 import { TableroWidgets } from "@/components/management/Widgets";
 import { Cargando, Chip, ErrorCaja, Indicador, Tarjeta, Vacio, fmtFecha, fmtMonto } from "@/components/management/ui";
 import { ESTADOS_TAREA, ETAPAS_PROYECTO, PRIORIDADES, color, etiqueta, nombreEmpleado } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 type T = { id: string; titulo: string; fin: string | null; estado: string; prioridad: string; responsable: { nombre: string; apellido: string } | null; proyecto: { codigo: string } | null };
 type Resumen = {
@@ -55,7 +56,10 @@ export default function DashboardGestion() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-ui font-bold text-xl sm:text-2xl">Tablero general{nombre ? ` · ${nombre}` : ""}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="font-ui font-bold text-xl sm:text-2xl">Tablero general{nombre ? ` · ${nombre}` : ""}</h1>
+          <HistorialModulo titulo="Toda la empresa" entidades={["tareas", "proyectos", "tickets", "oportunidades", "facturas", "empleados"]} />
+        </div>
         <p className="text-sm text-silver">Resumen al {fmtFecha(r.hoy)}. Próximos vencimientos hasta el {fmtFecha(r.limite)}.</p>
       </div>
 

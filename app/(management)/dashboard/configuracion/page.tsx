@@ -9,6 +9,7 @@ import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import { Cargando, Chip, Etiqueta, Selector, SelectorRef, Tarjeta, Vacio, campoCls, fmtFechaHora } from "@/components/management/ui";
 import { etqDepto, etqEmpleado } from "@/components/planning/comun";
 import { ESTADOS_TAREA, ESTADOS_TICKET, ETAPAS_CRM, ETAPAS_PROYECTO, PRIORIDADES, ROLES_SISTEMA, ROL_USUARIO, nombreEmpleado } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 const PESTANAS = { departamentos: "Departamentos", cargos: "Cargos", permisos: "Roles y permisos", catalogos: "Catálogos", parametros: "Parámetros", estados: "Estados y prioridades", auditoria: "Auditoría" };
 
@@ -19,7 +20,10 @@ export default function Configuracion() {
   if (!esAdmin) return <Vacio texto="La configuración es exclusiva del administrador principal." />;
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Configuración</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Configuración</h1>
+        <HistorialModulo titulo="Configuración" entidades={["departamentos", "cargos", "asignaciones_permiso", "catalogos", "parametros"]} />
+      </div>
       <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-glass-bd">
         {(Object.keys(PESTANAS) as (keyof typeof PESTANAS)[]).map((k) => (
           <button key={k} role="tab" aria-selected={pestana === k} onClick={() => setPestana(k)}

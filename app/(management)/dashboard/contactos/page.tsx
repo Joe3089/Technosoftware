@@ -5,6 +5,7 @@ import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import type { Campo } from "@/components/management/Formulario";
 import { TIPOS_CONTACTO, etiqueta } from "@/lib/services/constantes";
 import { etqCliente } from "@/components/management/proyectos/campos";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 const CAMPOS_CONTACTO: Campo[] = [
   { nombre: "nombre", etiqueta: "Nombre", tipo: "texto", requerido: true },
@@ -28,7 +29,10 @@ export default function PaginaContactos() {
   const gestiona = puede("contactos.gestionar");
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Contactos</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Contactos</h1>
+        <HistorialModulo titulo="Contactos" entidades={["contactos"]} />
+      </div>
       <p className="text-sm text-silver -mt-2">Directorio único de clientes, prospectos, proveedores y socios. El correo y el WhatsApp no se pueden repetir.</p>
       <RecursoTabla recurso="contactos" campos={CAMPOS_CONTACTO} textoNuevo="Nuevo contacto" puedeCrear={gestiona} puedeEditar={gestiona} puedeBorrar={gestiona}
         nuevoInicial={{ tipo: "contacto" }} filtros={[{ clave: "tipo", etiqueta: "Tipo", opciones: TIPOS_CONTACTO }]}

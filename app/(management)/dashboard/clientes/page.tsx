@@ -6,6 +6,7 @@ import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import type { Campo } from "@/components/management/Formulario";
 import { Chip, Modal, fmtFecha, fmtMonto } from "@/components/management/ui";
 import { ESTADOS_FACTURA, ESTADOS_PROYECTO, ESTADOS_TICKET, ETAPAS_CRM, color, etiqueta } from "@/lib/services/constantes";
+import { Historial, HistorialModulo } from "@/components/shared/Historial";
 
 const TIPOS = [{ valor: "interesado", etiqueta: "Interesado" }, { valor: "fijo", etiqueta: "Fijo" }];
 const CAMPOS: Campo[] = [
@@ -25,7 +26,10 @@ export default function PaginaClientes() {
   const gestiona = puede("clientes.gestionar");
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Clientes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Clientes</h1>
+        <HistorialModulo titulo="Clientes" entidades={["clientes"]} />
+      </div>
       <RecursoTabla recurso="clientes" campos={CAMPOS} textoNuevo="Nuevo cliente" puedeCrear={gestiona} puedeEditar={gestiona}
         nuevoInicial={{ tipo: "interesado" }} filtros={[{ clave: "tipo", etiqueta: "Tipo", opciones: TIPOS }]} onAbrir={setAbierto}
         columnas={[
@@ -60,6 +64,7 @@ export default function PaginaClientes() {
                   { clave: "pagado", titulo: "Pagado", render: (f) => fmtMonto(f.pagado as number, f.moneda as string) },
                   { clave: "estado", titulo: "Estado", render: (f) => <Chip texto={etiqueta(ESTADOS_FACTURA, f.estado as string)} color={color(ESTADOS_FACTURA, f.estado as string)} /> }]} />
             )}
+            <section className="space-y-2"><h2 className="font-ui font-semibold text-[#f0f4ff]">Historial</h2><Historial entidad="clientes" entidadId={abierto.id} /></section>
             <RecursoTabla recurso="tickets" titulo="Incidencias y soporte" fijos={{ cliente_id: abierto.id }} buscar={false} size={10}
               columnas={[{ clave: "numero", titulo: "#" }, { clave: "titulo", titulo: "Asunto" },
                 { clave: "estado", titulo: "Estado", render: (f) => <Chip texto={etiqueta(ESTADOS_TICKET, f.estado as string)} color={color(ESTADOS_TICKET, f.estado as string)} /> }]} />

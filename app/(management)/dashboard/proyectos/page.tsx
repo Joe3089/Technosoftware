@@ -6,6 +6,7 @@ import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import { Chip, fmtFecha } from "@/components/management/ui";
 import { CAMPOS_PROYECTO } from "@/components/management/proyectos/campos";
 import { ESTADOS_PROYECTO, ETAPAS_PROYECTO, PRIORIDADES, color, etiqueta, nombreEmpleado } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 type P = Fila & { codigo: string; nombre: string; etapa: string; estado: string; prioridad: string; avance: number | null; fin_plan: string | null;
   cliente: { nombre: string } | null; coordinador: { nombre: string; apellido: string } | null };
@@ -15,7 +16,10 @@ export default function PaginaProyectos() {
   const router = useRouter();
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Proyectos</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Proyectos</h1>
+        <HistorialModulo titulo="Proyectos" entidades={["proyectos", "proyecto_equipo", "proyecto_hitos", "proyecto_items", "proyecto_contactos"]} />
+      </div>
       <RecursoTabla recurso="proyectos" textoNuevo="Nuevo proyecto" campos={CAMPOS_PROYECTO} puedeCrear={puede("proyectos.gestionar")}
         nuevoInicial={{ prioridad: "media", etapa: "prospeccion", moneda: "USD" }}
         onAbrir={(f) => router.push(`/dashboard/proyectos/${f.id}`)}

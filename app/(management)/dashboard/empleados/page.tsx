@@ -6,6 +6,7 @@ import { RecursoTabla, type Fila } from "@/components/management/RecursoTabla";
 import { Chip, fmtFecha } from "@/components/management/ui";
 import { camposEmpleado } from "@/components/management/empleados/campos";
 import { ESTADOS_EMPLEADO, ROLES_SISTEMA, color, etiqueta, etiquetaRol, nombreEmpleado } from "@/lib/services/constantes";
+import { HistorialModulo } from "@/components/shared/Historial";
 
 export default function PaginaEmpleados() {
   const { puede, esAdmin } = useGestion();
@@ -13,7 +14,10 @@ export default function PaginaEmpleados() {
   const router = useRouter();
   return (
     <div className="space-y-4">
-      <h1 className="font-ui font-bold text-xl">Talento Humano</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-ui font-bold text-xl">Talento Humano</h1>
+        <HistorialModulo titulo="Talento Humano" entidades={["empleados", "empleado_evaluaciones", "empleado_datos"]} />
+      </div>
       <RecursoTabla recurso="empleados" campos={camposEmpleado(esAdmin, asignaRol)} textoNuevo="Nuevo empleado" puedeCrear={puede("empleados.gestionar")}
         nuevoInicial={{ rol_sistema: "devops", es_coordinador: false }} onAbrir={(f) => router.push(`/dashboard/empleados/${f.id}`)}
         filtros={[{ clave: "estado", etiqueta: "Estado", opciones: ESTADOS_EMPLEADO }, { clave: "rol_sistema", etiqueta: "Rol", opciones: ROLES_SISTEMA }]}
