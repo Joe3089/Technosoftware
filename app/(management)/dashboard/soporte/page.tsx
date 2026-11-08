@@ -90,7 +90,7 @@ function DetalleTicket({ ticket, editable, onCerrar, onCambio }: { ticket: Fila;
       <div className="space-y-5">
         {editable ? (
           <Formulario campos={CAMPOS} inicial={ticket} editando onCancelar={onCerrar}
-            onGuardar={async (d) => { const r = await api<{ dato: Fila }>(`/api/gestion/tickets/${ticket.id}`, { method: "PATCH", json: d }); onCambio(r.dato); avisar("Ticket actualizado"); }} />
+            onGuardar={async (d) => { const r = await api<{ dato: Fila }>(`/api/gestion/tickets/${ticket.id}`, { method: "PATCH", json: d }); onCambio({ ...ticket, ...r.dato }); avisar("Ticket actualizado"); }} />
         ) : <p className="text-sm text-silver whitespace-pre-wrap">{String(ticket.descripcion ?? "Sin descripción.")}</p>}
         <section className="border-t border-glass-bd pt-4 space-y-2">
           <h3 className="text-sm font-ui font-semibold">Comentarios</h3>

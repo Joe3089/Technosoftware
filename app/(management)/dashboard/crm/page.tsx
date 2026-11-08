@@ -50,7 +50,7 @@ export default function PaginaCRM() {
     setDatos((d) => d.map((o) => (o.id === id ? ((previo = o), { ...o, ...cambios }) : o)));
     try {
       const r = await api<{ dato: Op }>(`/api/gestion/oportunidades/${id}`, { method: "PATCH", json: cambios });
-      setDatos((d) => d.map((o) => (o.id === id ? r.dato : o)));
+      setDatos((d) => d.map((o) => (o.id === id ? { ...o, ...r.dato } : o)));
     } catch (e) {
       setDatos((d) => d.map((o) => (o.id === id && previo ? previo : o)));
       avisar(e instanceof Error ? e.message : "No se pudo mover", "error");
@@ -144,7 +144,7 @@ function DetalleOportunidad({ op, onCerrar, onCambio }: { op: Op; onCerrar: () =
       nombre: op.titulo, cliente_id: op.cliente_id, departamento_id: sesion?.empleado?.departamento_id ?? null, presupuesto: op.valor, moneda: op.moneda, etapa: "contrato", prioridad: "media", descripcion: op.descripcion } }));
     if (!p) return;
     const r = await intentar(() => api<{ dato: Op }>(`/api/gestion/oportunidades/${op.id}`, { method: "PATCH", json: { proyecto_id: p.dato.id } }), "Proyecto creado desde la oportunidad");
-    if (r) onCambio(r.dato);
+    if (r) onCambio({ ...op, ...r.dato });
   }
 
   return (
@@ -156,7 +156,7 @@ function DetalleOportunidad({ op, onCerrar, onCambio }: { op: Op; onCerrar: () =
         )}
         {editable ? (
           <Formulario campos={CAMPOS} inicial={op as unknown as Record<string, unknown>} editando onCancelar={onCerrar}
-            onGuardar={async (d) => { const r = await api<{ dato: Op }>(`/api/gestion/oportunidades/${op.id}`, { method: "PATCH", json: d }); onCambio(r.dato); avisar("Oportunidad actualizada"); }} />
+            onGuardar={async (d) => { const r = await api<{ dato: Op }>(`/api/gestion/oportunidades/${op.id}`, { method: "PATCH", json: d }); onCambio({ ...op, ...r.dato }); avisar("Oportunidad actualizada"); }} />
         ) : <p className="text-sm text-silver">{op.descripcion ?? "Sin notas."}</p>}
         <div className="border-t border-glass-bd pt-4 space-y-3">
           <h3 className="text-sm font-ui font-semibold">Seguimiento e interacciones</h3>

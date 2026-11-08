@@ -49,7 +49,7 @@ export function DetalleTarea({ id, onCerrar, onCambio }: { id: string | null; on
                 onCancelar={onCerrar}
                 onGuardar={async (d) => {
                   const r = await api<{ dato: Tarea }>(`/api/gestion/tareas/${tarea.id}`, { method: "PATCH", json: d });
-                  setTarea(r.dato); onCambio(); avisar("Actividad actualizada");
+                  setTarea((t) => (t ? { ...t, ...r.dato } : r.dato)); onCambio(); avisar("Actividad actualizada");
                 }} />
               <div className="border-t border-glass-bd pt-3">
                 <Button variant="destructive" size="sm" onClick={() => setBorrar(true)}><Trash2 className="w-3.5 h-3.5" />Eliminar actividad</Button>

@@ -42,7 +42,7 @@ export default function ExpedienteProyecto({ params }: { params: Promise<{ id: s
   useEffect(() => { cargar(); }, [cargar]);
   const guardar = async (d: Record<string, unknown>) => {
     const r = await api<{ dato: Proyecto }>(`/api/gestion/proyectos/${id}`, { method: "PATCH", json: d });
-    setP(r.dato); setEditar(false); avisar("Proyecto actualizado");
+    setP((x) => (x ? { ...x, ...r.dato } : r.dato)); setEditar(false); avisar("Proyecto actualizado");
   };
 
   if (error) return <ErrorCaja texto={error} />;

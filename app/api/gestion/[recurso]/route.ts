@@ -1,6 +1,6 @@
 import { json } from "@/lib/api";
 import { mensajeError, resolver } from "@/lib/services/recursos";
-import { requireStaff } from "@/lib/permissions";
+import { requireStaff, esUuid } from "@/lib/permissions";
 
 type Ctx = { params: Promise<{ recurso: string }> };
 
@@ -55,13 +55,23 @@ export async function POST(req: Request, { params }: Ctx) {
   const auth = await requireStaff({ admin: r.soloAdmin });
   if ("error" in auth) return auth.error;
 
-  const parsed = r.crear.safeParse(await req.json().catch(() => null));
+  const cuerpo = await req.json().catch(() => null);
+  const parsed = r.crear.safeParse(cuerpo);
   if (!parsed.success) return json({ error: parsed.error.issues[0]?.message ?? "Datos inválidos", campos: parsed.error.issues.map((i) => i.path.join(".")) }, 400);
   const fila: Record<string, unknown> = { ...parsed.data };
   if (r.autor) fila[r.autor] = auth.ctx.empleado_id;
+  // id generado en el cliente (modo sin conexión): reintentar el mismo alta no duplica registros
+  const idCliente = !r.pk && esUuid(cuerpo?.id) ? cuerpo.id : null;
+  if (idCliente) fila.id = idCliente;
 
   const { data, error } = await auth.db.from(r.tabla).insert(fila).select(r.select).single();
-  if (error) { const [m, s] = mensajeError(error); return json({ error: m }, s); }
+  if (error) {
+    if (idCliente && error.code === "23505") {
+      const { data: previo } = await auth.db.from(r.tabla).select(r.select).eq("id", idCliente).maybeSingle();
+      if (previo) return json({ dato: previo, repetido: true }, 200);
+    }
+    const [m, s] = mensajeError(error); return json({ error: m }, s);
+  }
   return json({ dato: data }, 201);
 }
 

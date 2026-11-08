@@ -113,7 +113,7 @@ export default function ExpedienteEmpleado({ params }: { params: Promise<{ id: s
 
       <Modal abierto={modal === "editar"} onCerrar={() => setModal(null)} titulo="Editar expediente">
         <Formulario campos={camposEmpleado(esAdmin, asignaRol && !propio)} inicial={e as unknown as Record<string, unknown>} editando onCancelar={() => setModal(null)}
-          onGuardar={async (d) => { const r = await api<{ dato: Emp }>(`/api/gestion/empleados/${id}`, { method: "PATCH", json: d }); setE(r.dato); setModal(null); avisar("Expediente actualizado"); }} />
+          onGuardar={async (d) => { const r = await api<{ dato: Emp }>(`/api/gestion/empleados/${id}`, { method: "PATCH", json: d }); setE((x) => (x ? { ...x, ...r.dato } : r.dato)); setModal(null); avisar("Expediente actualizado"); }} />
       </Modal>
       <Acceso abierto={modal === "acceso"} empleado={e} onCerrar={() => setModal(null)} onHecho={(c) => { setModal(null); setClave(c); cargar(); }} />
       <Desvincular abierto={modal === "desvincular"} empleado={e} onCerrar={() => setModal(null)} onHecho={() => { setModal(null); cargar(); }} />

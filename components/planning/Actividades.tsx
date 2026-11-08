@@ -59,7 +59,7 @@ export default function Actividades({ proyectoId }: { proyectoId?: string }) {
     setDatos((d) => d.map((t) => (t.id === id ? ((previo = t), { ...t, ...cambios }) : t)));
     try {
       const r = await api<{ dato: Tarea }>(`/api/gestion/tareas/${id}`, { method: "PATCH", json: cambios });
-      setDatos((d) => d.map((t) => (t.id === id ? r.dato : t)));
+      setDatos((d) => d.map((t) => (t.id === id ? { ...t, ...r.dato } : t)));
       return true;
     } catch (e) {
       setDatos((d) => d.map((t) => (t.id === id && previo ? previo : t)));

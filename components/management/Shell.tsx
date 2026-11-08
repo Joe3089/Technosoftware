@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import { etiquetaRol } from "@/lib/services/constantes";
 import { api, useGestion } from "@/components/management/contexto";
 import { campoCls, fmtFechaHora } from "@/components/management/ui";
+import { ModoOffline } from "@/components/management/ModoOffline";
+import { borrarTodo } from "@/lib/offline/idb";
 
 const NAV = [
   { href: "/dashboard/inicio", texto: "Dashboard", icono: LayoutDashboard },
@@ -71,13 +73,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-40 flex items-center gap-2 sm:gap-3 border-b border-glass-bd bg-navy-deep/85 backdrop-blur px-3 sm:px-5 h-14">
           <button className="lg:hidden p-1.5 text-silver" onClick={() => setMenu(true)} aria-label="Abrir menú"><Menu className="w-5 h-5" /></button>
           <BuscadorGlobal />
+          <ModoOffline />
           <Notificaciones />
           <div className="hidden sm:flex flex-col items-end leading-tight min-w-0">
             <span className="text-sm font-ui text-[#f0f4ff] truncate max-w-[180px]">{sesion?.empleado ? `${sesion.empleado.nombre} ${sesion.empleado.apellido}` : sesion?.nombre}</span>
             <span className="text-[11px] text-cyan">{sesion ? etiquetaRol(sesion.rol, sesion.coordinador) : ""}</span>
           </div>
           <Link href="/dashboard" className="p-2 text-silver hover:text-white" title="Ir al área de clientes" aria-label="Ir al área de clientes"><ArrowLeftRight className="w-4 h-4" /></Link>
-          <button onClick={logout} className="p-2 text-silver hover:text-red-300" title="Cerrar sesión" aria-label="Cerrar sesión"><LogOut className="w-4 h-4" /></button>
+          <button onClick={async () => { await borrarTodo(); navigator.serviceWorker?.controller?.postMessage("borrar-cache"); await logout(); }} className="p-2 text-silver hover:text-red-300" title="Cerrar sesión" aria-label="Cerrar sesión"><LogOut className="w-4 h-4" /></button>
         </header>
         <main className="flex-1 p-3 sm:p-5 lg:p-6 min-w-0">{children}</main>
       </div>

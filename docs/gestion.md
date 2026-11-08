@@ -176,6 +176,22 @@ Validación realizada el 2026-11-07 contra la base real, con datos temporales qu
 
 Validación de la reorganización (2026-11-08), con datos temporales eliminados al terminar: **32/32**. Incluye que la consultora asigne actividades al programador DevOps y a sí misma; que el programador mueva la tarjeta y ajuste el Gantt, pero no pueda reasignarla ni asignar a otros; la notificación de asignación; los widgets del tablero; que el coordinador de Talento cree fichas con rol y dé acceso sin poder crear un Administrador General ni cambiar su propio rol; la exclusividad del Administrador General; y la separación de visibilidad (el cliente vuelve a `/dashboard`, el empleado a `/dashboard/inicio`, y las URL `/gestion/*` redirigen). La regresión de las APIs existentes y del sitio público respondió 200.
 
+## Trabajo sin conexión y tiempo real
+
+- **Con conexión:** `lib/offline/tiempoReal.ts` se suscribe con Supabase Realtime a los INSERT de `auditoria` y `notificaciones` (migración 013). Realtime aplica RLS, así que cada usuario solo recibe los cambios de lo que puede ver. Cada evento refresca las listas de esa tabla (`useLista` escucha `gestion:cambio`), los widgets del inicio y la campana; a los 3 s también se actualiza la copia local de esa tabla.
+- **Sin conexión:** `api()` (`components/management/contexto.tsx`) pasa por `peticion()` (`lib/offline/sync.ts`).
+  - **Lecturas:** primero la red. Si no hay red, se responde con la copia local guardada en IndexedDB. Esa copia tiene hasta 1000 filas por tabla, se descarga al entrar y cada 10 minutos, y sobre ella se aplican filtros, búsqueda, rangos, orden y paginación (`lib/offline/local.ts`). Los cambios pendientes se aplican encima.
+  - **Escrituras de la API genérica, adjuntos y notificaciones:** si no hay red, se encolan y se ven al instante. Al volver la red se envían en orden. Las altas llevan un `id` generado en el cliente y el servidor las trata de forma idempotente, así que un reintento nunca duplica. Lo que el servidor rechaza (RLS o reglas) queda en «fallidas» con el motivo, visible en el indicador del encabezado.
+  - **Requieren conexión:** crear accesos, desvincular personal, descargar archivos y la conciliación.
+- **Service worker** (`public/sw-gestion.js`, solo en producción): guarda el código y las páginas `/dashboard/<módulo>` para abrirlas sin red, incluidos hasta 40 expedientes de proyectos y de empleados. No intercepta `/api`, el área de clientes ni el login.
+- **Seguridad:** la copia local queda en el perfil del navegador de ese equipo y se borra al cerrar sesión o si entra otro usuario. No se recomienda usarla en equipos compartidos.
+- **Pruebas (2026-11-08):**
+  - lógica sin conexión: 17/17, con servidor simulado e IndexedDB en memoria (cola, orden, rechazos, vista local, idempotencia);
+  - tiempo real contra Supabase: los eventos llegan en unos 2 s;
+  - alta idempotente contra el servidor real;
+  - el service worker se sirve y la CSP lo permite.
+- **Límite físico:** sin red solo ves tus datos guardados y tus propios cambios. Los cambios de otras personas llegan al volver la conexión.
+
 ## Pendientes y límites conocidos
 
 - La finanza es de **gestión**: no implementa reglas tributarias ni contabilidad fiscal.

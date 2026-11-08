@@ -2,20 +2,27 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { peticion } from "@/lib/offline/sync";
+import { partes } from "@/lib/offline/local";
 
 // ── API ──────────────────────────────────────────────────────────────
 export class ErrorApi extends Error {}
 
+/** Llamada a la API con respaldo sin conexión (ver lib/offline/sync.ts). */
 export async function api<T = unknown>(url: string, init?: RequestInit & { json?: unknown }): Promise<T> {
-  const { json: cuerpo, ...resto } = init ?? {};
-  const res = await fetch(url, {
-    ...resto,
+  const { json, ...resto } = init ?? {};
+  let cuerpo = json;
+  // Altas de la API genérica con id propio: si se reintentan (cola sin conexión) no se duplican
+  const p = partes(url);
+  if ((resto.method ?? "GET").toUpperCase() === "POST" && p && !p.id && cuerpo && typeof cuerpo === "object" && !Array.isArray(cuerpo) && !("id" in cuerpo))
+    cuerpo = { ...(cuerpo as object), id: crypto.randomUUID() };
+  const r = await peticion(url, {
+    ...resto, cuerpo,
     headers: cuerpo !== undefined ? { "Content-Type": "application/json", ...resto.headers } : resto.headers,
     body: cuerpo !== undefined ? JSON.stringify(cuerpo) : resto.body,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ErrorApi(data.error ?? "No se pudo completar la operación");
-  return data as T;
+  if (!r.ok) throw new ErrorApi(String(r.data.error ?? "No se pudo completar la operación"));
+  return r.data as T;
 }
 
 export type Lista<T> = { datos: T[]; total: number; page: number; size: number };
@@ -113,5 +120,18 @@ export function useLista<T>(recurso: string | null, params: Record<string, strin
   }, [clave, tick]);
   const recargar = useCallback(() => setTick((t) => t + 1), []);
   const setDatos = useCallback((f: (d: T[]) => T[]) => setEstado((e) => ({ ...e, datos: f(e.datos) })), []);
+  // Se refresca sola ante cambios locales (cola), sincronización o eventos en tiempo real de su tabla
+  useEffect(() => {
+    if (!recurso) return;
+    let t: ReturnType<typeof setTimeout> | null = null;
+    const h = (e: Event) => {
+      const tablas = (e as CustomEvent<{ tablas?: string[] }>).detail?.tablas;
+      if (tablas && tablas.length && !tablas.includes(recurso)) return;
+      if (t) clearTimeout(t);
+      t = setTimeout(recargar, 400);
+    };
+    window.addEventListener("gestion:cambio", h);
+    return () => { window.removeEventListener("gestion:cambio", h); if (t) clearTimeout(t); };
+  }, [recurso, recargar]);
   return { ...estado, recargar, setDatos };
 }

@@ -25,13 +25,21 @@ export function TableroWidgets() {
   const [d, setD] = useState<Datos | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ampliado, setAmpliado] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  // Tiempo real: cualquier cambio del equipo refresca los widgets (agrupado cada 2 s)
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | null = null;
+    const h = () => { if (t) clearTimeout(t); t = setTimeout(() => setTick((x) => x + 1), 2000); };
+    window.addEventListener("gestion:cambio", h);
+    return () => { window.removeEventListener("gestion:cambio", h); if (t) clearTimeout(t); };
+  }, []);
 
   useEffect(() => {
     const p = new URLSearchParams({ semanas: "10" });
     if (persona) p.set("persona", persona);
     if (depto) p.set("depto", depto);
     api<Datos>(`/api/gestion/tablero?${p}`).then(setD).catch((e) => setError(e.message));
-  }, [persona, depto]);
+  }, [persona, depto, tick]);
 
   const texto = q.trim().toLowerCase();
   const proyectos = useMemo(() => (d?.proyectos ?? []).filter((p) => !texto || `${p.codigo} ${p.nombre}`.toLowerCase().includes(texto)), [d, texto]);
