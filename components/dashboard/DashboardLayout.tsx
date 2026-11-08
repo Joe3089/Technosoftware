@@ -11,6 +11,7 @@ import {
   FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail, FileSignature, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SelectorIdioma, { Reloj } from "@/components/i18n/SelectorIdioma";
+import EnlaceGestion from "@/components/gestion/EnlaceGestion";
 import { useAuth } from "@/hooks/useAuth";
 import { useMetodosPago } from "@/hooks/useMetodosPago";
 import type { Metodo } from "@/lib/pagos";
@@ -170,6 +171,7 @@ export default function DashboardLayout({ children, activePanel, onPanelChange }
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 min-w-0">
           <Reloj className="hidden xl:inline-flex" />
+          <EnlaceGestion />
           <SelectorIdioma />
           {user && (
             <div className="flex items-center gap-2 sm:px-3 sm:py-1.5 rounded-full sm:border border-glass-bd min-w-0 max-sm:!bg-transparent"

@@ -27,6 +27,7 @@ There are no tests.
 | `/quienes-somos`, `/mision`, `/vision` | Info pages (share `components/sections/InfoPage.tsx`) |
 | `/login` | Login / register / forgot-password tabs (`components/auth/`) |
 | `/dashboard` | Protected area; panels depend on role |
+| `/gestion` | Internal management platform (staff only): dashboard, activities (list/kanban/gantt/calendar), projects, contacts, clients, CRM, HR, finance, support, KPI, config. See `docs/gestion.md` |
 
 ### API routes (`app/api/`)
 
@@ -68,12 +69,21 @@ There are no tests.
 
 Use the helpers in `lib/api.ts` (`requireRole`, `json`, `isEmail`, `str`) in new routes.
 
+### Internal management (`/gestion`, migration 010)
+
+Full docs: `docs/gestion.md`. Key rules:
+- Access = the single admin (`profiles.role='admin'`, unique index) or an **active** row in `empleados` linked by `profile_id`. Public sign-up only creates clients; the admin links accounts (`/api/gestion/personal/[id]/acceso`).
+- RBAC: `empleados.rol_interno` (coordinador/supervisor/empleado) + department (sub-areas inherit from their area, never from Dirección General) + cargo + per-employee overrides in `asignaciones_permiso`. Helpers live in the unexposed `app` schema (`app.tiene_permiso()`, `app.mis_departamentos()`…); the app reads them via `rpc('gestion_contexto')` in `requireStaff()` (`lib/gestion/servidor.ts`).
+- Generic CRUD: `app/api/gestion/[recurso]` exposes only tables registered in `lib/gestion/recursos.ts` (select/embeds, filters, Zod schemas, delete mode). Add a table there instead of writing a new route. Always use the session client so RLS applies; self-referencing embeds use the column (`padre:padre_id(...)`), others the FK name.
+- UI building blocks in `components/gestion/` (`RecursoTabla`, `Formulario`, `SelectorRef`, `Adjuntos`, `Historial`). No extra deps: kanban = native DnD, gantt/calendar/charts are hand-written.
+- DB triggers own the rules: audit log (`auditoria`, field names only for personal/free text), immutable invoice payments and finance records (annul only), no dependency cycles, only managers reassign tasks, notifications. Offboarding goes through `public.desvincular_empleado()` + Auth ban; history is kept.
+
 ### Auth & roles
 
 - `lib/supabase/client.ts` (browser) and `lib/supabase/server.ts` (server, includes `getSessionProfile`).
 - `middleware.ts` refreshes the session cookie and redirects unauthenticated `/dashboard` requests to `/login`. It is a no-op when the Supabase env vars are missing.
 - `hooks/useAuth.ts` is the client hook (login/register/logout, Spanish error messages).
-- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/schema.sql` plus `supabase/002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql` (run in order).
+- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/schema.sql` plus `supabase/002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql` (run in order).
 - Dashboard: `components/dashboard/DashboardLayout.tsx`; user panels are in `panels/`, admin-only panels (`ClientesPanel`, `CorreosPanel`) are in `panels/admin/`.
 
 ### Styling
