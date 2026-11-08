@@ -1,10 +1,10 @@
-# Plataforma de gestión interna (`/gestion`)
+# Plataforma de gestión interna (`/dashboard/<módulo>`)
 
 Área privada del equipo de Technosoftware para planificar y operar la empresa. Funcionalmente parecida a Trello/ClickUp/Odoo, dentro del mismo proyecto Next.js. Usa la misma autenticación y la misma base de datos Supabase que el sitio y el área de clientes.
 
 - **Sitio público** (`/`, `/quienes-somos`…): sin cambios.
-- **Área de clientes** (`/dashboard`): sin cambios funcionales. El personal ve un botón «Gestión» en su encabezado.
-- **Gestión interna** (`/gestion`): solo el administrador principal y los empleados activos.
+- **Área de clientes** (`/dashboard`, rol «usuario» asignado al registrarse): sin cambios funcionales. El personal (salvo el admin) es redirigido a `/dashboard/inicio` y nunca la ve.
+- **Gestión interna** (`/dashboard/inicio`, `/planificacion`, …): solo el Administrador General y los empleados activos. Un cliente que entra a una ruta interna vuelve a `/dashboard`. Las URL antiguas `/gestion/*` redirigen aquí.
 
 ## Arquitectura
 
@@ -19,12 +19,12 @@ Navegador ──► app/gestion/** (client components)
 ```
 
 - **Autorización en tres capas.**
-  1. El layout de servidor `app/gestion/layout.tsx` redirige a quien no es del equipo.
-  2. Cada ruta de API llama a `requireStaff()` (`lib/gestion/servidor.ts`), que obtiene el rol y los permisos de la base de datos con `gestion_contexto()`.
+  1. Los layouts de servidor `app/(management)/dashboard/layout.tsx` y `app/(cliente)/dashboard/layout.tsx` separan a equipo y clientes.
+  2. Cada ruta de API llama a `requireStaff()` (`lib/permissions`), que obtiene el rol y los permisos de la base de datos con `gestion_contexto()`.
   3. RLS decide sobre cada fila.
 
   El cliente nunca envía roles ni permisos. La UI los usa solo para ocultar botones.
-- **API genérica.** `app/api/gestion/[recurso]` y `[recurso]/[id]` dan acceso a las tablas del registro `RECURSOS` (`lib/gestion/recursos.ts`). Ninguna otra tabla es accesible. Cada recurso declara:
+- **API genérica.** `app/api/gestion/[recurso]` y `[recurso]/[id]` dan acceso a las tablas del registro `RECURSOS` (`lib/services/recursos.ts`). Ninguna otra tabla es accesible. Cada recurso declara:
   - el `select` con sus embeds;
   - las columnas de búsqueda, filtrado y orden;
   - los esquemas Zod de alta y edición (si falta uno, la operación no está permitida);
@@ -32,7 +32,8 @@ Navegador ──► app/gestion/** (client components)
   - si es `soloAdmin`;
   - la columna de autor, que el servidor fija con el empleado actual.
 - **Rutas especiales**: `contexto`, `resumen`, `buscar`, `notificaciones`, `estadisticas`, `finanzas/reporte`, `archivos`, `personal/[id]` (acceso, desvinculación, eliminación).
-- **UI reutilizable** (`components/gestion/`):
+- **Estructura:** `app/(public)`, `app/(cliente)/dashboard`, `app/(management)/dashboard/<módulo>`, `app/api/gestion`; `components/{management,planning,gantt,shared}`; `lib/{supabase,permissions,services}`; `supabase/{migrations,seed}`.
+- **UI reutilizable** (`components/management/` y afines):
   - `RecursoTabla`: lista paginada con búsqueda, filtros, orden y formulario.
   - `Formulario`: formulario declarativo con campos de texto, fecha, opciones, catálogo, referencia y booleano.
   - `SelectorRef`: búsqueda asíncrona sujeta a RLS.
@@ -44,19 +45,19 @@ Navegador ──► app/gestion/** (client components)
 
 | Ruta | Contenido |
 |------|-----------|
-| `/gestion` | Dashboard. Admin y mandos: empleados, proyectos (activos/pendientes/culminados), actividades vencidas y próximas, ingresos y gastos del mes, estado por departamento, alertas. Empleado: mis actividades, mis proyectos, completadas en 30 días. |
-| `/gestion/actividades` | Lista (columnas configurables, orden, agrupación, cambio de estado en línea), Kanban (arrastrar cambia estado y orden), Gantt (día/semana/mes; mover, redimensionar, dependencias, hitos, progreso, vencidas), Calendario (arrastrar cambia la fecha). Las cuatro vistas usan el mismo conjunto de registros. Filtros: texto, estado, prioridad, departamento, responsable, «Mías», período. El detalle incluye subtareas, checklist, comentarios, archivos, colaboradores, dependencias e historial. |
-| `/gestion/proyectos` y `/[id]` | Expediente único: fases 1–11 (clic para avanzar), datos, actividades del proyecto, equipo, contactos, hitos, requerimientos, entregables, incidencias, documentación, costos y facturación, observaciones (las existentes, visibles para el cliente) e historial. |
-| `/gestion/contactos` | Directorio único (cliente, prospecto, proveedor, socio, contacto empresarial, otros). Correo y WhatsApp únicos. |
-| `/gestion/clientes` | Tabla `clientes` existente (sin duplicar). Expediente con contactos, proyectos, oportunidades, facturas y tickets. |
-| `/gestion/crm` | Pipeline Kanban de 7 etapas, interacciones con recordatorios, conversión en proyecto al ganar y reportes (conversión, pipeline ponderado, ciclo, ticket promedio, fuentes). |
-| `/gestion/empleados` y `/[id]` | Expedientes, datos personales confidenciales, evaluaciones, documentos, actividades e historial. Acciones: dar acceso, desvincular, reincorporar, eliminar definitivamente. |
-| `/gestion/finanzas` | Resumen (flujo, margen, cartera, por mes, por categoría, rentabilidad por proyecto), facturas por cobrar y por pagar con pagos, ingresos y gastos, presupuestos y la billetera de clientes en solo lectura. |
-| `/gestion/soporte` | Tickets (número, cliente, proyecto, categoría, prioridad, responsable, estados), comentarios, archivos, historial, MTTR. |
-| `/gestion/kpi` | KPI por departamento con fórmula, meta, unidad, sentido, fuente, periodicidad y responsable; valor automático, mediciones manuales y tendencia. |
-| `/gestion/configuracion` | Solo admin: departamentos, cargos, roles y permisos (matriz), catálogos, parámetros, estados y prioridades (referencia) y auditoría. |
+| `/dashboard/inicio` | Tablero general estilo monday.com: filtros (texto, persona, departamento) y 4 widgets ampliables: línea de tiempo de proyectos por estado (zoom), estado de proyectos (dona), carga de trabajo persona × semana (horas estimadas; sobrecarga > 40 h) y presupuesto vs gastos por proyecto. Además: Admin y mandos: empleados, proyectos (activos/pendientes/culminados), actividades vencidas y próximas, ingresos y gastos del mes, estado por departamento, alertas. Empleado: mis actividades, mis proyectos, completadas en 30 días. |
+| `/dashboard/planificacion` | Lista (columnas configurables, orden, agrupación, cambio de estado en línea), Tablero estilo Trello (arrastrar cambia estado y orden; «+ Añadir tarjeta» en cada columna con responsable, horas estimadas y fechas: el consultor asigna a programadores o a sí mismo; selector de proyecto; tarjetas con avatar, horas y fechas), Gantt (día/semana/mes; mover, redimensionar, dependencias, hitos, progreso, vencidas), Calendario (arrastrar cambia la fecha). Las cuatro vistas usan el mismo conjunto de registros. Filtros: texto, estado, prioridad, departamento, responsable, «Mías», período. El detalle incluye subtareas, checklist, comentarios, archivos, colaboradores, dependencias e historial. |
+| `/dashboard/proyectos` y `/[id]` | Expediente único: fases 1–11 (clic para avanzar), datos, actividades del proyecto, equipo, contactos, hitos, requerimientos, entregables, incidencias, documentación, costos y facturación, observaciones (las existentes, visibles para el cliente) e historial. |
+| `/dashboard/contactos` | Directorio único (cliente, prospecto, proveedor, socio, contacto empresarial, otros). Correo y WhatsApp únicos. |
+| `/dashboard/clientes` | Tabla `clientes` existente (sin duplicar). Expediente con contactos, proyectos, oportunidades, facturas y tickets. |
+| `/dashboard/crm` | Pipeline Kanban de 7 etapas, interacciones con recordatorios, conversión en proyecto al ganar y reportes (conversión, pipeline ponderado, ciclo, ticket promedio, fuentes). |
+| `/dashboard/empleados` y `/[id]` | Expedientes, datos personales confidenciales, evaluaciones, documentos, actividades e historial. Acciones: dar acceso, desvincular, reincorporar, eliminar definitivamente. |
+| `/dashboard/contabilidad` | Resumen (flujo, margen, cartera, por mes, por categoría, rentabilidad por proyecto), facturas por cobrar y por pagar con pagos, ingresos y gastos, presupuestos y la billetera de clientes en solo lectura. |
+| `/dashboard/soporte` | Tickets (número, cliente, proyecto, categoría, prioridad, responsable, estados), comentarios, archivos, historial, MTTR. |
+| `/dashboard/estadisticas` | KPI por departamento con fórmula, meta, unidad, sentido, fuente, periodicidad y responsable; valor automático, mediciones manuales y tendencia. |
+| `/dashboard/configuracion` | Solo admin: departamentos, cargos, roles y permisos (matriz), catálogos, parámetros, estados y prioridades (referencia) y auditoría. |
 
-## Base de datos (migración `supabase/010_gestion_empresarial.sql`)
+## Base de datos (`supabase/migrations/010_gestion_empresarial.sql` y `011_roles_sistema.sql`)
 
 Es aditiva e idempotente: puede volver a ejecutarse sin efectos.
 
@@ -96,13 +97,26 @@ Es aditiva e idempotente: puede volver a ejecutarse sin efectos.
 
 ## Permisos (RBAC)
 
-- **Administrador principal** (`profiles.role='admin'`, único): todo. Es el único que asigna roles internos, da o restituye accesos, edita la configuración y elimina expedientes.
-- **Rol interno** del empleado: `coordinador`, `supervisor` o `empleado`.
-- **Permisos efectivos** = rol + departamento + cargo + excepciones por empleado, de las cuales una denegación prevalece.
+**Roles de sistema** (ficha del empleado; «Usuario» es el rol del cliente, automático al registrarse, y nunca aparece en la ficha):
+
+| Rol | Por defecto puede |
+|-----|-------------------|
+| Administrador General | Todo. Único: solo la cuenta del administrador principal. |
+| Comercialización | Clientes, contactos y CRM (ver y gestionar). |
+| Finanzas | Contabilidad completa, clientes, todos los proyectos. |
+| Talento | Directorio; el **coordinador** de Talento crea fichas, asigna roles y da acceso. |
+| DevOps | Recibe actividades; soporte técnico (tickets de su área). |
+| Consultoría | Proyectos de su área, clientes, contactos y **asignar actividades** a cualquier empleado (p. ej. programadores DevOps) en los proyectos de cuyo equipo forma parte. |
+| Legal | Clientes y todos los proyectos (contratos). |
+| + Coordinador (cualquier rol) | Gestionar y reasignar actividades y proyectos de su área, KPI y estadísticas. |
+
+
+- **Administrador principal** (`profiles.role='admin'`, único): todo; es el único que edita la configuración, reincorpora y elimina expedientes. Asignar roles y dar acceso también lo puede el coordinador de Talento; nadie cambia su propio rol.
+- **Permisos efectivos** = rol + coordinador del rol + departamento + cargo + excepciones por empleado, de las cuales una denegación prevalece.
   - Una sub-área hereda los permisos de su área, pero **no los de Dirección General**, que solo aplican a sus propios miembros.
   - Coordinadores y supervisores ven su departamento y sus sub-áreas.
   - Un empleado ve lo suyo: lo que tiene asignado, lo que creó, donde colabora y los proyectos de cuyo equipo forma parte.
-- **Asignaciones iniciales:** ver la sección «Datos base» de la migración, por ejemplo Comercialización → CRM y clientes, Administración y Finanzas → finanzas, Talento Humano → `empleados.gestionar`, Tecnología → tickets. Se cambian en Configuración → Roles y permisos.
+- **Asignaciones iniciales:** `supabase/seed/011_roles.sql`. Se cambian en Configuración → Roles y permisos.
 - **Altas de personal:** el registro público solo crea clientes (`role='user'`). Una cuenta llega a `/gestion` únicamente si el admin la vincula a un expediente activo, ya sea con «Crear cuenta» (contraseña temporal que se muestra una vez) o con «Vincular cuenta existente».
 - **Desvinculación** (Talento Humano o admin):
   1. Pide motivo y fecha.
@@ -138,7 +152,7 @@ Los errores se devuelven en español y sin detalles internos (`mensajeError`).
 
 - **Variables de entorno:** no hay nuevas. Se usan las existentes: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (solo en el servidor, para crear cuentas, banear y gestionar el storage), `POSTGRES_URL` (solo para aplicar migraciones).
 - **Supabase:**
-  - ejecutar `010_gestion_empresarial.sql` después de la 009;
+  - ejecutar `supabase/migrations/010_gestion_empresarial.sql` y `011_roles_sistema.sql` después de la 009, y luego `supabase/seed/011_roles.sql`;
   - crea el bucket privado `gestion`;
   - el esquema `app` no debe añadirse a los esquemas expuestos de la Data API.
 - **Primer uso:**
@@ -150,7 +164,7 @@ Los errores se devuelven en español y sin detalles internos (`mensajeError`).
 ## Ejecutar y probar
 
 ```bash
-npm run dev                # http://localhost:3000/gestion (requiere admin o empleado activo)
+npm run dev                # http://localhost:3000/dashboard/inicio (requiere admin o empleado activo)
 npx tsc --noEmit -p .      # tipos
 npm run lint && npm run build
 ```
@@ -159,6 +173,8 @@ Validación realizada el 2026-11-07 contra la base real, con datos temporales qu
 - **RLS simulando roles en SQL:** cliente sin acceso; admin con todo; empleado limitado a lo suyo; coordinador con sus sub-áreas; bloqueos de autoascenso y reasignación; desvinculado sin acceso; segundo admin rechazado.
 - **E2E de las API contra `next start` con sesiones reales: 78/78.** Cubre los 33 recursos, permisos, Kanban, Gantt, checklist, comentarios, dependencias sin ciclos, archivos (firma y URL firmada), integridad de facturas, pagos y registros, y la desvinculación (revoca el acceso, bloquea el inicio de sesión, conserva el historial y la auditoría con autor).
 - **Regresión:** el sitio público, `/login`, `/dashboard` y 13 APIs existentes responden 200; un cliente sigue viendo exactamente sus propios registros; CSRF devuelve 403.
+
+Validación de la reorganización (2026-11-08), con datos temporales eliminados al terminar: **32/32**. Incluye que la consultora asigne actividades al programador DevOps y a sí misma; que el programador mueva la tarjeta y ajuste el Gantt, pero no pueda reasignarla ni asignar a otros; la notificación de asignación; los widgets del tablero; que el coordinador de Talento cree fichas con rol y dé acceso sin poder crear un Administrador General ni cambiar su propio rol; la exclusividad del Administrador General; y la separación de visibilidad (el cliente vuelve a `/dashboard`, el empleado a `/dashboard/inicio`, y las URL `/gestion/*` redirigen). La regresión de las APIs existentes y del sitio público respondió 200.
 
 ## Pendientes y límites conocidos
 

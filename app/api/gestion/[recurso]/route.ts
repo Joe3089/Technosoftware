@@ -1,6 +1,6 @@
 import { json } from "@/lib/api";
-import { mensajeError, resolver } from "@/lib/gestion/recursos";
-import { requireStaff } from "@/lib/gestion/servidor";
+import { mensajeError, resolver } from "@/lib/services/recursos";
+import { requireStaff } from "@/lib/permissions";
 
 type Ctx = { params: Promise<{ recurso: string }> };
 

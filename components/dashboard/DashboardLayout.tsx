@@ -11,7 +11,7 @@ import {
   FileText, BadgeDollarSign, Lock, ShieldCheck, Users, Mail, FileSignature, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SelectorIdioma, { Reloj } from "@/components/i18n/SelectorIdioma";
-import EnlaceGestion from "@/components/gestion/EnlaceGestion";
+import EnlaceGestion from "@/components/management/EnlaceGestion";
 import { useAuth } from "@/hooks/useAuth";
 import { useMetodosPago } from "@/hooks/useMetodosPago";
 import type { Metodo } from "@/lib/pagos";

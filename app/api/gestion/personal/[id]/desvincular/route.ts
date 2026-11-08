@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { json } from "@/lib/api";
-import { mensajeError } from "@/lib/gestion/recursos";
-import { requireStaff, esUuid } from "@/lib/gestion/servidor";
+import { mensajeError } from "@/lib/services/recursos";
+import { requireStaff, esUuid } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/server";
 
 type Ctx = { params: Promise<{ id: string }> };

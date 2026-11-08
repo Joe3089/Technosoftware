@@ -1,5 +1,5 @@
 import { json } from "@/lib/api";
-import { requireStaff } from "@/lib/gestion/servidor";
+import { requireStaff } from "@/lib/permissions";
 
 const ABIERTAS = "(completada,cancelada)";
 const hoyISO = () => new Date().toISOString().slice(0, 10);
@@ -25,7 +25,7 @@ export async function GET() {
   ]) : null;
 
   // ── Empresa (lo visible según permisos) ──
-  const verEmpresa = ctx.rol !== "empleado";
+  const verEmpresa = ctx.rol === "admin" || ctx.coordinador || ctx.permisos.includes("estadisticas.ver");
   const fin = ctx.permisos.includes("finanzas.ver");
   const mesIni = hoy.slice(0, 8) + "01";
   const [emp, pAct, pPend, pCulm, vencidas, proximas, porDepto, regs, pagos, cxc, tUrg, deps] = verEmpresa ? await Promise.all([

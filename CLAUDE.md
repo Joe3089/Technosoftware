@@ -23,11 +23,11 @@ There are no tests.
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Public landing (hero, about, projects carousel, contact) |
+| `/` | Public landing (hero, about, projects carousel, contact). Public pages live in `app/(public)/` (route group, URLs unchanged) |
 | `/quienes-somos`, `/mision`, `/vision` | Info pages (share `components/sections/InfoPage.tsx`) |
 | `/login` | Login / register / forgot-password tabs (`components/auth/`) |
-| `/dashboard` | Protected area; panels depend on role |
-| `/gestion` | Internal management platform (staff only): dashboard, activities (list/kanban/gantt/calendar), projects, contacts, clients, CRM, HR, finance, support, KPI, config. See `docs/gestion.md` |
+| `/dashboard` | Client area (role «usuario», `app/(cliente)/dashboard`); panels depend on role. Staff (non-admin) are redirected to `/dashboard/inicio` |
+| `/dashboard/<módulo>` | Internal management (staff only, `app/(management)/dashboard`): inicio, planificacion, proyectos, contactos, clientes, empleados, crm, contabilidad, estadisticas, soporte, configuracion. Clients are redirected to `/dashboard`. Old `/gestion/*` URLs redirect here. See `docs/gestion.md` |
 
 ### API routes (`app/api/`)
 
@@ -69,13 +69,13 @@ There are no tests.
 
 Use the helpers in `lib/api.ts` (`requireRole`, `json`, `isEmail`, `str`) in new routes.
 
-### Internal management (`/gestion`, migration 010)
+### Internal management (`/dashboard/<módulo>`, migrations 010–011)
 
 Full docs: `docs/gestion.md`. Key rules:
-- Access = the single admin (`profiles.role='admin'`, unique index) or an **active** row in `empleados` linked by `profile_id`. Public sign-up only creates clients; the admin links accounts (`/api/gestion/personal/[id]/acceso`).
-- RBAC: `empleados.rol_interno` (coordinador/supervisor/empleado) + department (sub-areas inherit from their area, never from Dirección General) + cargo + per-employee overrides in `asignaciones_permiso`. Helpers live in the unexposed `app` schema (`app.tiene_permiso()`, `app.mis_departamentos()`…); the app reads them via `rpc('gestion_contexto')` in `requireStaff()` (`lib/gestion/servidor.ts`).
-- Generic CRUD: `app/api/gestion/[recurso]` exposes only tables registered in `lib/gestion/recursos.ts` (select/embeds, filters, Zod schemas, delete mode). Add a table there instead of writing a new route. Always use the session client so RLS applies; self-referencing embeds use the column (`padre:padre_id(...)`), others the FK name.
-- UI building blocks in `components/gestion/` (`RecursoTabla`, `Formulario`, `SelectorRef`, `Adjuntos`, `Historial`). No extra deps: kanban = native DnD, gantt/calendar/charts are hand-written.
+- Access = the single admin (`profiles.role='admin'`, unique index) or an **active** row in `empleados` linked by `profile_id`. Public sign-up only creates clients (role «usuario»); the admin or the Talento coordinator links accounts (`/api/gestion/personal/[id]/acceso`).
+- Roles (`empleados.rol_sistema`): admin_general (only the admin's own account), comercializacion, finanzas, talento, devops, consultoria, legal; plus `es_coordinador`. Permissions = role grants + coordinator grants (`asignaciones_permiso.sujeto_tipo='coordinador'`, per role or `*`) + department + cargo + per-employee overrides; defaults in `supabase/seed/011_roles.sql`. Consultoría has `tareas.asignar` (assign tasks to any employee, e.g. DevOps, in its projects); Talento coordinators have `empleados.asignar_rol`. Helpers live in the unexposed `app` schema (`app.tiene_permiso()`, `app.asigna_tarea()`…); the app reads them via `rpc('gestion_contexto')` in `requireStaff()` (`lib/permissions`).
+- Generic CRUD: `app/api/gestion/[recurso]` exposes only tables registered in `lib/services/recursos.ts` (select/embeds, filters, Zod schemas, delete mode). Add a table there instead of writing a new route. Always use the session client so RLS applies; self-referencing embeds use the column (`padre:padre_id(...)`), others the FK name.
+- UI: `components/management/` (shell, `RecursoTabla`, `Formulario`, `SelectorRef`, home `Widgets`), `components/planning/` (activities, Trello-style board with `TarjetaRapida`, calendar, detail), `components/gantt/`, `components/shared/` (`Adjuntos`, `Historial`). No extra deps: board = native DnD, gantt/calendar/charts are hand-written.
 - DB triggers own the rules: audit log (`auditoria`, field names only for personal/free text), immutable invoice payments and finance records (annul only), no dependency cycles, only managers reassign tasks, notifications. Offboarding goes through `public.desvincular_empleado()` + Auth ban; history is kept.
 
 ### Auth & roles
@@ -83,7 +83,7 @@ Full docs: `docs/gestion.md`. Key rules:
 - `lib/supabase/client.ts` (browser) and `lib/supabase/server.ts` (server, includes `getSessionProfile`).
 - `middleware.ts` refreshes the session cookie and redirects unauthenticated `/dashboard` requests to `/login`. It is a no-op when the Supabase env vars are missing.
 - `hooks/useAuth.ts` is the client hook (login/register/logout, Spanish error messages).
-- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/schema.sql` plus `supabase/002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql` (run in order).
+- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/migrations/schema.sql` plus `002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql`, `011_roles_sistema.sql` (run in order), all in `supabase/migrations/`; then `supabase/seed/011_roles.sql`.
 - Dashboard: `components/dashboard/DashboardLayout.tsx`; user panels are in `panels/`, admin-only panels (`ClientesPanel`, `CorreosPanel`) are in `panels/admin/`.
 
 ### Styling

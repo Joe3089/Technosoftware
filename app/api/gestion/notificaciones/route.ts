@@ -1,6 +1,6 @@
 import { json } from "@/lib/api";
-import { mensajeError } from "@/lib/gestion/recursos";
-import { requireStaff, esUuid } from "@/lib/gestion/servidor";
+import { mensajeError } from "@/lib/services/recursos";
+import { requireStaff, esUuid } from "@/lib/permissions";
 
 // GET /api/gestion/notificaciones — últimas 30 propias
 export async function GET() {

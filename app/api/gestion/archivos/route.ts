@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { json } from "@/lib/api";
 import { MAX_ARCHIVO, sniff, nombreSeguro } from "@/lib/archivos";
-import { mensajeError } from "@/lib/gestion/recursos";
-import { requireStaff, esUuid } from "@/lib/gestion/servidor";
+import { mensajeError } from "@/lib/services/recursos";
+import { requireStaff, esUuid } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/server";
 
 const ENTIDADES = ["tarea", "proyecto", "ticket", "oportunidad", "contacto", "factura", "empleado"];

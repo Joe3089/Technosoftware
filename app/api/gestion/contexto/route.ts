@@ -1,5 +1,5 @@
 import { json } from "@/lib/api";
-import { requireStaff } from "@/lib/gestion/servidor";
+import { requireStaff } from "@/lib/permissions";
 
 // GET /api/gestion/contexto — rol, permisos efectivos, ficha propia y notificaciones sin leer
 export async function GET() {

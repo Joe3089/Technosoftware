@@ -22,6 +22,16 @@ const CSP = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Enlaces antiguos de la plataforma interna (/gestion) → /dashboard/<módulo>
+  async redirects() {
+    return [
+      { source: "/gestion", destination: "/dashboard/inicio", permanent: false },
+      { source: "/gestion/actividades", destination: "/dashboard/planificacion", permanent: false },
+      { source: "/gestion/finanzas", destination: "/dashboard/contabilidad", permanent: false },
+      { source: "/gestion/kpi", destination: "/dashboard/estadisticas", permanent: false },
+      { source: "/gestion/:path*", destination: "/dashboard/:path*", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

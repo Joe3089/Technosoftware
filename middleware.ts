@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { SUPABASE_PUBLIC_KEY } from "@/lib/supabase/keys";
 
-// Refreshes the Supabase session cookie and protects /dashboard and /gestion
+// Refreshes the Supabase session cookie and protects /dashboard (clients) and /dashboard/<module> (staff)
 const METODOS_SEGUROS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 /** CSRF defense in depth (on top of SameSite cookies): state-changing API calls must come from this site. */
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && /^\/(dashboard|gestion)(\/|$)/.test(request.nextUrl.pathname)) {
+  if (!user && /^\/dashboard(\/|$)/.test(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -50,5 +50,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/gestion/:path*", "/login", "/api/:path*"],
+  matcher: ["/dashboard/:path*", "/login", "/api/:path*"],
 };

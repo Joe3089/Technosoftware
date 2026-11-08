@@ -1,5 +1,5 @@
 import { json } from "@/lib/api";
-import { requireStaff } from "@/lib/gestion/servidor";
+import { requireStaff } from "@/lib/permissions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const dias = (a: string, b: string) => (new Date(b).getTime() - new Date(a).getTime()) / 86400000;
