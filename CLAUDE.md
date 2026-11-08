@@ -83,7 +83,7 @@ Full docs: `docs/gestion.md`. Key rules:
 - `lib/supabase/client.ts` (browser) and `lib/supabase/server.ts` (server, includes `getSessionProfile`).
 - `middleware.ts` refreshes the session cookie and redirects unauthenticated `/dashboard` requests to `/login`. It is a no-op when the Supabase env vars are missing.
 - `hooks/useAuth.ts` is the client hook (login/register/logout, Spanish error messages).
-- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/migrations/schema.sql` plus `002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql`, `011_roles_sistema.sql` (run in order), all in `supabase/migrations/`; then `supabase/seed/011_roles.sql`.
+- The role (`admin` | `user`) lives in `public.profiles.role`. Schema and RLS are in `supabase/migrations/schema.sql` plus `002_perfil_actividad_billetera.sql` and `003_recargas_proyectos.sql`, `004_consultorias_solicitudes.sql`, `005_metodos_pago.sql`, `006_contratacion_encuesta_resenas.sql`, `007_traducciones.sql`, `008_seguridad.sql`, `009_conciliacion_pagos.sql`, `010_gestion_empresarial.sql`, `011_roles_sistema.sql`, `012_historial_areas.sql` (run in order), all in `supabase/migrations/`; then `supabase/seed/011_roles.sql`.
 - Dashboard: `components/dashboard/DashboardLayout.tsx`; user panels are in `panels/`, admin-only panels (`ClientesPanel`, `CorreosPanel`) are in `panels/admin/`.
 
 ### Styling
